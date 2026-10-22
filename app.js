@@ -43,7 +43,16 @@ function renderCart(){
  const t=compute();$("subtotal").textContent=yen(t.subtotal);$("shipping").textContent=yen(t.shipping);$("tax").textContent=yen(t.tax);$("total").textContent=yen(t.total);
 }
 document.addEventListener("click",e=>{
- const cat=e.target.closest("[data-category]");if(cat){category=cat.dataset.category;$("category-label").textContent=cat.textContent;renderProducts();document.querySelectorAll("[data-category]").forEach(a=>a.style.background="");cat.style.background="#fff4c8";return;}
+ const cat=e.target.closest("[data-category]");
+if(cat){
+  e.preventDefault(); // リンクによる強制スクロールを防止
+  category=cat.dataset.category;
+  $("category-label").textContent=cat.textContent;
+  renderProducts();
+  document.querySelectorAll("[data-category]").forEach(a=>a.style.background="");
+  cat.style.background="#fff4c8";
+  return;
+}
  const add=e.target.closest("[data-add]");if(add){const id=+add.dataset.add,qty=+$(`qty-${id}`).value;cart[id]=(cart[id]||0)+qty;renderCart();showToast("カートに追加しました");return;}
  const rem=e.target.closest("[data-remove]");if(rem){delete cart[+rem.dataset.remove];renderCart();return;}
  const s=e.target.closest("[data-sort]");if(s){sort=s.dataset.sort;renderProducts();}
