@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>花ネット｜花の仕入れ・卸売・ご注文は生花の仲卸</title>
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="chatbot.css">
 </head>
 <body>
 <div class="archive-note">花ネット再現デモ｜2023年の保存資料を参考に、使いやすく整えたデザインです</div>
@@ -184,6 +185,7 @@
 </div>
 <div id="toast" role="status"></div>
 <script src="app.js"></script>
+<script src="chatbot.js"></script>
 <script>
 (function(){const h=document.getElementById("header-search"),b=document.getElementById("header-search-button"),s=document.getElementById("search");if(!h||!b||!s)return;function run(){s.value=h.value;document.getElementById("search-button").click();document.getElementById("products").scrollIntoView({behavior:"smooth",block:"start"});}b.addEventListener("click",run);h.addEventListener("keydown",e=>{if(e.key==="Enter")run();});})();
 </script>
