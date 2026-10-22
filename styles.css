@@ -11,3 +11,29 @@
                         .hero-copy{padding:19px 16px}.hero-copy h1{font-size:27px}.hero-video-wrap,.hero-video{min-height:180px;height:180px}.hero-video-wrap:before{background:linear-gradient(180deg,#fff4f000,#fff4f000)}.product-row{grid-template-columns:76px minmax(0,1fr);gap:8px;padding:10px 6px}.product-row img{width:70px;height:70px}.product-controls{grid-column:2;border-left:0;border-top:1px solid #f0e2de;padding:7px 0 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap}.product-controls label{margin:0}.product-controls button{width:auto;margin:0;padding:6px 10px}
                         .cart-line{grid-template-columns:1fr 45px 65px 40px}.search-tools input{width:145px}.cart-calculator label{margin-right:6px}.welcome-image{width:75px}}
 @media(max-width:420px){#left{grid-template-columns:1fr}.left-section:first-child{grid-column:auto}.hero-copy h1{font-size:24px}.search-tools #result-count{margin-left:0}.cart-line{font-size:11px}.top-links a{padding:6px 8px}}
+
+/* 発送上の注意事項をほかの見出しと統一 */
+.notice {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  margin: 15px 0 0;
+}
+
+.notice h2 {
+  font-size: 16px;
+  color: #5b793f;
+  background: linear-gradient(90deg, #f1f7e8, #fff6f5);
+  border: 1px solid #e0e7d2;
+  border-left: 4px solid #88ad65;
+  border-radius: 5px;
+  padding: 8px 11px;
+  margin: 16px 0 9px;
+}
+
+.notice p {
+  margin: 5px 0;
+  font-size: 12px;
+  color: #655b54;
+}
