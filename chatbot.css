@@ -1,0 +1,32 @@
+/* 花ネット・チャットボット：既存CSSに干渉しない hn-chat-* 名前空間 */
+#hn-chat-widget{font-family:"Noto Sans JP","Yu Gothic",Meiryo,sans-serif;color:#4b433e}
+.hn-chat-launcher{position:fixed;right:22px;bottom:22px;z-index:1000;display:flex;align-items:center;gap:9px;border:0;border-radius:999px;padding:12px 17px;background:#d96b91;color:#fff;box-shadow:0 7px 24px #68404a30;font:600 13px "Noto Sans JP","Yu Gothic",Meiryo,sans-serif;cursor:pointer;transition:transform .18s,background .18s}
+.hn-chat-launcher:hover{background:#b84c73;transform:translateY(-2px)}
+.hn-chat-launcher-icon{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#fff3f6;color:#c85f82;font-size:21px}
+.hn-chat-panel{position:fixed;right:22px;bottom:82px;z-index:1001;width:min(370px,calc(100vw - 24px));height:min(570px,calc(100dvh - 110px));min-height:360px;overflow:hidden;display:flex;flex-direction:column;background:#fffdfb;border:1px solid #eadbd7;border-radius:16px;box-shadow:0 12px 44px #4b30251f}
+.hn-chat-panel[hidden]{display:none}
+.hn-chat-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 15px;background:linear-gradient(110deg,#fff0f4,#f4f8ec);border-bottom:1px solid #eadbd7}
+.hn-chat-header strong,.hn-chat-header small{display:block}
+.hn-chat-header strong{font-size:14px;color:#765040}
+.hn-chat-header small{font-size:10px;color:#877a72;margin-top:2px}
+.hn-chat-close{border:0;background:transparent;color:#8c716a;font-size:27px;line-height:1;cursor:pointer;padding:0 4px}
+.hn-chat-messages{flex:1;overflow-y:auto;padding:13px;display:flex;flex-direction:column;gap:9px;background:#fffdfb}
+.hn-chat-bubble{align-self:flex-start;max-width:100%;border:1px solid #efe3df;border-radius:12px 12px 12px 4px;background:#fff;padding:10px 11px;font-size:12px;line-height:1.75;overflow-wrap:anywhere}
+.hn-chat-user{align-self:flex-end;background:#fff0f4;border-color:#f1d3dd;border-radius:12px 12px 4px 12px;max-width:88%}
+.hn-chat-product{display:flex;flex-direction:column;gap:3px;margin-top:9px;padding:9px;border:1px solid #f0e2de;border-radius:8px;background:#fff}
+.hn-chat-product strong{font-size:12px;color:#755b7a}
+.hn-chat-product span{font-size:10px;color:#877a72}
+.hn-chat-product b{font-size:13px;color:#c84f70}
+.hn-chat-action{margin:5px 5px 0 0;padding:6px 8px;border:1px solid #e7c8d1;border-radius:5px;background:#fff5f7;color:#a74469;font:600 11px "Noto Sans JP","Yu Gothic",Meiryo,sans-serif;cursor:pointer}
+.hn-chat-action:hover{background:#ffe6ee}
+.hn-chat-quick{display:flex;gap:5px;flex-wrap:wrap;padding:9px 10px 4px;border-top:1px solid #f0e5e0;background:#fff}
+.hn-chat-quick button{border:1px solid #eadbd7;border-radius:999px;padding:5px 8px;background:#fffaf8;color:#705e55;font:11px "Noto Sans JP","Yu Gothic",Meiryo,sans-serif;cursor:pointer}
+.hn-chat-quick button:hover{background:#f2f7e9}
+.hn-chat-form{display:flex;gap:7px;padding:9px 10px 7px;background:#fff}
+.hn-chat-form input{min-width:0;flex:1;border:1px solid #dfd1cb;border-radius:8px;padding:10px;font:12px "Noto Sans JP","Yu Gothic",Meiryo,sans-serif;outline-color:#d96b91}
+.hn-chat-form button{border:0;border-radius:8px;padding:0 13px;background:#789c55;color:#fff;font:600 12px inherit;cursor:pointer}
+.hn-chat-form button:hover{background:#4d7435}
+.hn-chat-disclaimer{margin:0;padding:0 11px 9px;background:#fff;color:#9a8a81;font-size:9px;text-align:center}
+.hn-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:480px){.hn-chat-launcher{right:12px;bottom:12px;padding:10px 13px}.hn-chat-panel{right:12px;bottom:70px;width:calc(100vw - 24px);height:min(600px,calc(100dvh - 88px));min-height:320px}.hn-chat-launcher span:last-child{font-size:12px}}
+@media(prefers-reduced-motion:reduce){.hn-chat-launcher{transition:none}}
