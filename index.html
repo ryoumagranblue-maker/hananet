@@ -74,11 +74,45 @@
     <main id="main">
       <section class="main-banners floral-hero" aria-label="花ネットのご案内">
         <div class="hero-copy"><span class="hero-eyebrow">HANANET · FLOWER WHOLESALE</span><h1>新鮮なお花を、<br><em>卸売価格</em>でお届けします</h1><p>切り花・花材・鉢花・花苗・観葉植物まで。<br>花のある毎日を、もっと身近に。</p><a href="#products" class="hero-link">商品を探す <span>→</span></a></div>
-        <div class="hero-flower-photo" role="img" aria-label="ピンクや白の季節の花束"></div>
+        <div class="hero-video-wrap">
+          <video class="hero-video"
+                 autoplay
+                 muted
+                 loop
+                 playsinline
+                 preload="metadata"
+                 poster="https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=1000&q=85"
+                 aria-label="花ネットの紹介映像">
+            <source src="assets/hananet-intro.mp4" type="video/mp4">
+            <img src="https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=1000&q=85"
+                 alt="ピンクや白の季節の花束">
+          </video>
+        </div>
       </section>
       <div class="redline">花は赤のバラ・黄のバラ・オレンジのバラ・白のバラ・ピンクのバラ・その他いろんな色のバラあり</div>
 
-
+      <section class="notice">
+        <h2>発送上の注意事項</h2>
+        <p>◇日曜日は発送業務・お客様対応ともにお休みをいただいております。</p>
+        <p>◇お客様対応の時間は月・火・水・木・金・土の午前10時～午後6時です。</p>
+        <p>少人数で運営致しておりますので、上記時間内でもお電話にでれない場合がございます。電話がつながらない場合は、メール又はFAXにてお問い合わせ下さいませ。</p>
+        <p>◇北海道・東北・沖縄・離島への発送は、時間指定ができません。</p>
+        <p>◇送料は１梱包につき1個分の送料をご負担頂いております。</p>
+        <h3>送料一覧（税抜）</h3>
+        <table class="freight-table">
+          <tr><th>常温発送（本州・四国・九州）</th><td>1,300円</td></tr>
+          <tr><th>常温発送（北海道）</th><td>3,000円</td></tr>
+          <tr><th>常温発送（沖縄）</th><td>4,200円</td></tr>
+          <tr><th>クール便発送（本州・四国・九州）</th><td>1,900円</td></tr>
+          <tr><th>クール便発送（北海道）</th><td>3,600円</td></tr>
+          <tr><th>クール便発送（沖縄）</th><td>4,800円</td></tr>
+        </table>
+        <p>例）送付先が本州で2梱包の場合は1,300円×2個＝2,600円（税抜）</p>
+        <p>◇苗・鉢は１ケース、観葉植物等は１商品で１梱包になります。</p>
+        <p>◇切花は花の種類にもよりますが、50～200本程度は1梱包で発送可能です。長さのある花や枝分かれした花等は30本程度で1梱包の場合もございます。</p>
+        <p>◇クール便は小さいサイズの箱でしか発送できないため、長いお花は発送できず、梱包数が増える場合があります。</p>
+        <p class="rule-link"><a href="#rules">詳しくは購入規約をお読み下さい。</a></p>
+      </section>
 
       <section class="welcome">
         <img class="welcome-image" src="https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/main_2_3.gif" alt="" onerror="this.style.display='none'">
@@ -134,29 +168,6 @@
           <button id="checkout">注文内容を確認（デモ）</button>
           <p class="small">※このデモは注文・決済・個人情報の送信を行いません。</p>
         </div>
-      </section>
-
-      <section class="notice">
-        <h2>発送上の注意事項</h2>
-        <p>◇日曜日は発送業務・お客様対応ともにお休みをいただいております。</p>
-        <p>◇お客様対応の時間は月・火・水・木・金・土の午前10時～午後6時です。</p>
-        <p>少人数で運営致しておりますので、上記時間内でもお電話にでれない場合がございます。電話がつながらない場合は、メール又はFAXにてお問い合わせ下さいませ。</p>
-        <p>◇北海道・東北・沖縄・離島への発送は、時間指定ができません。</p>
-        <p>◇送料は１梱包につき1個分の送料をご負担頂いております。</p>
-        <h3>送料一覧（税抜）</h3>
-        <table class="freight-table">
-          <tr><th>常温発送（本州・四国・九州）</th><td>1,300円</td></tr>
-          <tr><th>常温発送（北海道）</th><td>3,000円</td></tr>
-          <tr><th>常温発送（沖縄）</th><td>4,200円</td></tr>
-          <tr><th>クール便発送（本州・四国・九州）</th><td>1,900円</td></tr>
-          <tr><th>クール便発送（北海道）</th><td>3,600円</td></tr>
-          <tr><th>クール便発送（沖縄）</th><td>4,800円</td></tr>
-        </table>
-        <p>例）送付先が本州で2梱包の場合は1,300円×2個＝2,600円（税抜）</p>
-        <p>◇苗・鉢は１ケース、観葉植物等は１商品で１梱包になります。</p>
-        <p>◇切花は花の種類にもよりますが、50～200本程度は1梱包で発送可能です。長さのある花や枝分かれした花等は30本程度で1梱包の場合もございます。</p>
-        <p>◇クール便は小さいサイズの箱でしか発送できないため、長いお花は発送できず、梱包数が増える場合があります。</p>
-        <p class="rule-link"><a href="#rules">詳しくは購入規約をお読み下さい。</a></p>
       </section>
 
       <section id="about" class="text-section"><h2 class="bar-heading">◆ 花ネットについて</h2><p>当サイトは切り花・花鉢・花苗・観葉植物を卸売価格で安く買える店です。新鮮なお花を仲卸価格にて迅速に発送致します。お供え用やお祝い用のフラワーアレンジメント・花束も販売。発送後もフルサポート致します。</p></section>
