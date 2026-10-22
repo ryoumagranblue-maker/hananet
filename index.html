@@ -7,17 +7,18 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="archive-note">※2023年9月30日の保存資料をもとに再構成したデモサイトです。商品・注文機能は復元用の仮実装です。</div>
+<div class="archive-note">花ネット再現デモ｜2023年の保存資料を参考に、使いやすく整えたデザインです</div>
 <div id="page">
   <header id="header">
-    <a href="#top" class="header-image" aria-label="花ネット トップ">
-      <img src="https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/main_1.gif" alt="お花の全国宅配、花束の当日発送は「フラワーショップ花ネット」" onerror="this.style.display='none'">
-      <span class="fallback-logo">花ネット</span>
-    </a>
-    <div class="header-title">花の仕入、卸売、ご注文は生花の仲卸『花ネット』をご利用ください。</div>
-    <div class="top-links">
-      <a href="#member">無料会員登録</a> | <a href="#cart" id="top-cart-link">カートの中 (<span id="top-cart-count">0</span>)</a> | <a href="#rules">購入規約</a>
+    <div class="brand-row">
+      <a href="#top" class="header-image" aria-label="花ネット トップ">
+        <span class="brand-flower" aria-hidden="true">✿</span>
+        <span class="brand-copy"><strong>花ネット</strong><small>HANANET · FLOWER WHOLESALE</small></span>
+      </a>
+      <div class="header-title">花の仕入れ・卸売・ご注文は、生花の仲卸「花ネット」へ</div>
+      <div class="top-links"><a href="#member">無料会員登録</a><a href="#member">ログイン</a><a href="#cart" id="top-cart-link">🛒 カートの中 <span id="top-cart-count">0</span></a></div>
     </div>
+    <div class="header-search"><span>新鮮なお花を、花屋さんにもご家庭にも。</span><label class="header-search-box"><span>⌕</span><input type="search" id="header-search" placeholder="商品名・色・品番で検索"><button type="button" id="header-search-button">検索</button></label></div>
   </header>
 
   <div id="columns">
@@ -71,10 +72,10 @@
     </aside>
 
     <main id="main">
-      <div class="main-banners">
-        <img src="https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/main_2_3.gif" alt="お祝い、お供えなどのフラワーギフト通販 生花の卸問屋 花ネット" onerror="this.style.display='none'">
-        <img src="https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/main_1.gif" alt="花ネット" onerror="this.style.display='none'">
-      </div>
+      <section class="main-banners floral-hero" aria-label="花ネットのご案内">
+        <div class="hero-copy"><span class="hero-eyebrow">HANANET · FLOWER WHOLESALE</span><h1>新鮮なお花を、<br><em>卸売価格</em>でお届けします</h1><p>切り花・花材・鉢花・花苗・観葉植物まで。<br>花のある毎日を、もっと身近に。</p><a href="#products" class="hero-link">商品を探す <span>→</span></a></div>
+        <div class="hero-flower-photo" role="img" aria-label="ピンクや白の季節の花束"></div>
+      </section>
       <div class="redline">花は赤のバラ・黄のバラ・オレンジのバラ・白のバラ・ピンクのバラ・その他いろんな色のバラあり</div>
 
       <section class="notice">
@@ -170,5 +171,8 @@
 </div>
 <div id="toast" role="status"></div>
 <script src="app.js"></script>
+<script>
+(function(){const h=document.getElementById("header-search"),b=document.getElementById("header-search-button"),s=document.getElementById("search");if(!h||!b||!s)return;function run(){s.value=h.value;document.getElementById("search-button").click();document.getElementById("products").scrollIntoView({behavior:"smooth",block:"start"});}b.addEventListener("click",run);h.addEventListener("keydown",e=>{if(e.key==="Enter")run();});})();
+</script>
 </body>
 </html>
