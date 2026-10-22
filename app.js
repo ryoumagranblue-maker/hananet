@@ -1,104 +1,58 @@
-const products = [
-  {id:1,name:"ピンポン菊",category:"sale",categoryName:"特価品・切り花",price:160,unit:"本",tag:"特価品",description:"丸い花姿がかわいらしい、アレンジにも人気の菊。",image:"https://images.unsplash.com/photo-1508610048659-a06b669e3321?auto=format&fit=crop&w=700&q=80",packages:1},
-  {id:2,name:"ガーベラ",category:"cut",categoryName:"切り花・花材",price:100,unit:"本",tag:"特価品",description:"明るい色合いで花束や店頭ディスプレイに。",image:"https://images.unsplash.com/photo-1559563362-c667ba5f5480?auto=format&fit=crop&w=700&q=80",packages:1},
-  {id:3,name:"アンスリューム",category:"pot",categoryName:"鉢花・鉢植え",price:3500,unit:"鉢",tag:"入荷情報",description:"艶のある花姿が印象的な観賞用植物。",image:"https://images.unsplash.com/photo-1593691509543-c55fb32e5cee?auto=format&fit=crop&w=700&q=80",packages:1},
-  {id:4,name:"赤いバラの花束",category:"bouquet",categoryName:"バラの花束",price:4800,unit:"束",tag:"人気商品",description:"本数や色の相談を想定したギフト向け商品。",image:"https://images.unsplash.com/photo-1494972308805-463bc619d34e?auto=format&fit=crop&w=700&q=80",packages:1},
-  {id:5,name:"季節の花束",category:"gift",categoryName:"お祝い用花束",price:3300,unit:"束",tag:"ギフト",description:"季節の花を組み合わせた華やかな花束。",image:"https://images.unsplash.com/photo-1525310072745-f49212b5ac6d?auto=format&fit=crop&w=700&q=80",packages:1},
-  {id:6,name:"ナチュラルアレンジ",category:"arrangement",categoryName:"アレンジメント",price:4200,unit:"個",tag:"ギフト",description:"やさしい色合いでまとめたアレンジメント。",image:"https://images.unsplash.com/photo-1563241527-3004b7be0ffd?auto=format&fit=crop&w=700&q=80",packages:1},
-  {id:7,name:"観葉植物・グリーン",category:"green",categoryName:"観葉植物",price:2800,unit:"鉢",tag:"グリーン",description:"お部屋や店舗のアクセントになる観葉植物。",image:"https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=700&q=80",packages:1},
-  {id:8,name:"季節の花苗セット",category:"seedling",categoryName:"花苗・野菜苗",price:1200,unit:"セット",tag:"園芸",description:"寄せ植えや花壇づくりにおすすめの苗セット。",image:"https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=700&q=80",packages:1},
-  {id:9,name:"胡蝶蘭・白",category:"orchid",categoryName:"胡蝶蘭",price:8800,unit:"鉢",tag:"お祝い",description:"開店祝いや記念日に向けた定番の胡蝶蘭。",image:"https://images.unsplash.com/photo-1566920316081-7f7e7d2c0e2d?auto=format&fit=crop&w=700&q=80",packages:1},
-  {id:10,name:"お供え用アレンジ",category:"condolence",categoryName:"お供え・弔事",price:3500,unit:"個",tag:"お供え",description:"落ち着いた色合いのお供え用アレンジメント。",image:"https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?auto=format&fit=crop&w=700&q=80",packages:1},
-  {id:11,name:"プリザーブドフラワー",category:"preserved",categoryName:"プリザーブド",price:2600,unit:"個",tag:"長く楽しめる",description:"水やり不要で長く飾れるフラワーギフト。",image:"https://images.unsplash.com/photo-1494972308805-463bc619d34e?auto=format&fit=crop&w=700&q=80",packages:1},
-  {id:12,name:"仏花・墓花セット",category:"memorial",categoryName:"仏花・墓花",price:780,unit:"束",tag:"仏花",description:"お供え用に使いやすい花材のセット。",image:"https://images.unsplash.com/photo-1508610048659-a06b669e3321?auto=format&fit=crop&w=700&q=80",packages:1}
+const PRODUCTS = [
+{id:1,name:"奉仕品ピンポン菊 1ロット10本 白",sku:"K011",category:"cut",categoryName:"切り花・花材",price:1600,unit:"ロット（10本）",pricePerStem:160,usual:180,color:"白",description:"奉仕価格での販売は1回の発送につき1ロットまで。70cm程度。",image:"https://web.archive.org/web/20230929235936im_/http://hananet.jp/image/product/100073.jpg"},
+{id:2,name:"奉仕品ピンポン菊 1ロット10本 黄色",sku:"K010",category:"cut",categoryName:"切り花・花材",price:1600,unit:"ロット（10本）",pricePerStem:160,usual:180,color:"黄色",description:"奉仕価格での販売は1回の発送につき1ロットまで。70cm程度。",image:"https://web.archive.org/web/20230929230527im_/http://hananet.jp/image/product/100205.jpg"},
+{id:3,name:"特価品ガーベラ 1ロット20本 色おまかせ",sku:"K131",category:"cut",categoryName:"切り花・花材",price:2000,unit:"ロット（20本）",pricePerStem:100,usual:110,color:"色おまかせ",description:"色おまかせ。1ロット20本。",image:"https://web.archive.org/web/20230929233224im_/http://hananet.jp/image/product/100131.jpg"},
+{id:4,name:"特価品ガーベラ 1ロット10本",sku:"K110",category:"cut",categoryName:"切り花・花材",price:1000,unit:"ロット（10本）",pricePerStem:100,usual:110,color:"白・黄・ピンク・オレンジ・赤",description:"色を選べる切り花特価品。1ロット10本。",image:"https://web.archive.org/web/20230929233224im_/http://hananet.jp/image/product/100110.jpg"},
+{id:5,name:"スプレーカーネーション 1ロット25本",sku:"K179",category:"cut",categoryName:"切り花・花材",price:5000,unit:"ロット（25本）",pricePerStem:200,usual:null,color:"黄・ピンク・白・オレンジ・赤",description:"長さ50cm程度。色の希望はお問い合わせください。",image:"https://web.archive.org/web/20230929233224im_/http://hananet.jp/image/product/100179.jpg"},
+{id:6,name:"カーネーション 1ロット50本 色おまかせMix",sku:"K135",category:"cut",categoryName:"切り花・花材",price:9500,unit:"ロット（50本）",pricePerStem:190,usual:null,color:"色おまかせMix",description:"切り花のまとめ買い向け商品。",image:"https://web.archive.org/web/20230929233224im_/http://hananet.jp/image/product/100135.jpg"},
+{id:7,name:"カーネーション 1ロット25本",sku:"K025",category:"cut",categoryName:"切り花・花材",price:5000,unit:"ロット（25本）",pricePerStem:200,usual:null,color:"ピンク・黄色・白",description:"色を選べる切り花。",image:"https://web.archive.org/web/20230929233224im_/http://hananet.jp/image/product/100025.jpg"},
+{id:8,name:"バラ 1ロット30本",sku:"K003",category:"rose",categoryName:"バラの花束",price:3900,unit:"ロット（30本）",pricePerStem:130,usual:null,color:"ピンク・黄色・オレンジ・白",description:"複数色から選べるバラ。",image:"https://web.archive.org/web/20230929233224im_/http://hananet.jp/image/product/rose.jpg"},
+{id:9,name:"アンスリューム",sku:"A3500",category:"pot",categoryName:"鉢花・鉢植え",price:3500,unit:"商品",pricePerStem:null,usual:null,color:"入荷時期による",description:"2023年9月29日更新の新入荷情報に記載。",image:"https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/main_2_3.gif"},
+{id:10,name:"胡蝶蘭",sku:"ORCHID",category:"orchid",categoryName:"胡蝶蘭",price:8800,unit:"鉢",pricePerStem:null,usual:null,color:"白など",description:"旧サイトの商品カテゴリを参考にしたデモ商品。価格は仮設定。",image:"https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/main_2_3.gif"},
+{id:11,name:"観葉植物",sku:"GREEN",category:"green",categoryName:"観葉植物",price:2800,unit:"商品",pricePerStem:null,usual:null,color:"商品による",description:"旧サイトの商品カテゴリを参考にしたデモ商品。価格は仮設定。",image:"https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/main_2_3.gif"},
+{id:12,name:"お供え・弔事アレンジ",sku:"COND",category:"condolence",categoryName:"お供え・弔事",price:3500,unit:"個",pricePerStem:null,usual:null,color:"白・淡色系",description:"旧サイトの商品カテゴリを参考にしたデモ商品。価格は仮設定。",image:"https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/main_2_3.gif"}
 ];
-const shippingRates = {
-  mainland:{ambient:1300,cool:1900},
-  hokkaido:{ambient:3000,cool:3600},
-  okinawa:{ambient:4200,cool:4800}
-};
-let activeCategory = "all";
-let cart = {};
-let toastTimer;
-const $ = id => document.getElementById(id);
-const yen = n => `${Math.round(n).toLocaleString("ja-JP")}円`;
-
+const rates={mainland:{ambient:1300,cool:1900},hokkaido:{ambient:3000,cool:3600},okinawa:{ambient:4200,cool:4800}};
+let category="all", sort="default", cart={};
+const $=id=>document.getElementById(id), yen=n=>Math.round(n).toLocaleString("ja-JP")+"円";
+function showToast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2200)}
+function filtered(){
+ const q=$("search").value.trim().toLowerCase();
+ let arr=PRODUCTS.filter(p=>(category==="all"||p.category===category)&&[p.name,p.sku,p.categoryName,p.color,p.description].join(" ").toLowerCase().includes(q));
+ if(sort==="price")arr.sort((a,b)=>a.price-b.price);
+ if(sort==="name")arr.sort((a,b)=>a.name.localeCompare(b.name,"ja"));
+ return arr;
+}
 function renderProducts(){
-  const q = $("search-input").value.trim().toLocaleLowerCase("ja");
-  const sort = $("sort-select").value;
-  let list = products.filter(p => (activeCategory==="all" || p.category===activeCategory) &&
-    [p.name,p.categoryName,p.description,p.tag].join(" ").toLocaleLowerCase("ja").includes(q));
-  if(sort==="price-asc") list.sort((a,b)=>a.price-b.price);
-  if(sort==="price-desc") list.sort((a,b)=>b.price-a.price);
-  if(sort==="name") list.sort((a,b)=>a.name.localeCompare(b.name,"ja"));
-  $("product-heading").textContent = activeCategory==="all" ? (q ? "検索結果" : "おすすめ商品") : document.querySelector(`[data-category="${activeCategory}"]`)?.textContent || "商品一覧";
-  $("result-count").textContent = `${list.length}商品`;
-  $("empty-state").hidden = list.length>0;
-  $("product-grid").innerHTML = list.map(p=>`
-    <article class="product-card">
-      <div class="product-image-wrap"><img class="product-image" src="${p.image}" alt="${p.name}" loading="lazy" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=700&q=80'">
-      <span class="tag ${p.category==='sale'?'':'green'}">${p.tag}</span></div>
-      <div class="product-body"><span class="product-category">${p.categoryName}</span><h3 class="product-name">${p.name}</h3>
-      <p class="product-description">${p.description}</p><div class="price-line"><strong class="price">${yen(p.price)}</strong><span class="unit">／${p.unit}</span></div>
-      <button class="add-button" data-add="${p.id}">＋ カートに入れる</button></div>
-    </article>`).join("");
+ const arr=filtered();$("result-count").textContent=`${arr.length}件`;
+ $("product-list").innerHTML=arr.length?arr.map(p=>`<article class="product-row">
+ <img src="${p.image}" alt="${p.name}" loading="lazy" onerror="this.onerror=null;this.src='https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/main_2_3.gif'">
+ <div><h3>${p.name}</h3><div class="sku">商品番号：${p.sku}　分類：${p.categoryName}</div><p>${p.description}</p><p>◇${p.color}</p><div class="price">${yen(p.price)}（税別） <span class="usual">${p.usual?`通常${p.usual}円/本`:''}</span></div></div>
+ <div class="product-controls"><label>数量<select id="qty-${p.id}"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select></label><button data-add="${p.id}">カートに入れる</button><div>単位：${p.unit}</div></div>
+ </article>`).join(""):`<p style="padding:15px">該当する商品がありません。</p>`;
 }
-function showToast(message){
-  $("toast").textContent=message;$("toast").classList.add("show");
-  clearTimeout(toastTimer);toastTimer=setTimeout(()=>$("toast").classList.remove("show"),2400);
-}
-function addToCart(id){
-  cart[id]=(cart[id]||0)+1;renderCart();showToast(`${products.find(p=>p.id===id).name}をカートに追加しました`);
-}
-function changeQty(id,delta){
-  cart[id]=(cart[id]||0)+delta;if(cart[id]<=0)delete cart[id];renderCart();
-}
-function removeItem(id){delete cart[id];renderCart();}
-function getCartLines(){return Object.entries(cart).map(([id,qty])=>({product:products.find(p=>p.id===Number(id)),qty})).filter(x=>x.product);}
-function totals(){
-  const lines=getCartLines();
-  const subtotal=lines.reduce((s,l)=>s+l.product.price*l.qty,0);
-  const region=$("region-select").value, method=$("shipping-select").value;
-  const packageCount=Math.max(1,Math.min(20,Number($("package-count").value)||1));
-  const shipping=lines.length?shippingRates[region][method]*packageCount:0;
-  const tax=Math.round((subtotal+shipping)*0.1);
-  return {subtotal,shipping,tax,total:subtotal+shipping+tax,packageCount};
+function lines(){return Object.entries(cart).map(([id,qty])=>({p:PRODUCTS.find(p=>p.id===+id),qty})).filter(x=>x.p)}
+function compute(){
+ const arr=lines(),subtotal=arr.reduce((s,x)=>s+x.p.price*x.qty,0),pkgs=arr.length?Math.max(1,Math.min(20,+$("packages").value||1)):0;
+ const shipping=arr.length?rates[$("region").value][$("delivery").value]*pkgs:0,tax=Math.round((subtotal+shipping)*.1);
+ return {subtotal,shipping,tax,total:subtotal+shipping+tax};
 }
 function renderCart(){
-  const lines=getCartLines();
-  $("cart-count").textContent=lines.reduce((s,l)=>s+l.qty,0);
-  $("cart-items").innerHTML=lines.length?lines.map(({product:p,qty})=>`
-    <div class="cart-item"><img src="${p.image}" alt="" onerror="this.style.opacity=.25">
-      <div><h3>${p.name}</h3><div class="cart-unit-price">${yen(p.price)} ／${p.unit}</div>
-      <div class="qty-controls"><button data-qty="${p.id}" data-delta="-1" aria-label="数量を減らす">−</button><span>${qty}</span><button data-qty="${p.id}" data-delta="1" aria-label="数量を増やす">＋</button></div></div>
-      <button class="remove-item" data-remove="${p.id}">削除</button></div>`).join(""):`<div class="cart-empty">カートは空です。<br>気になるお花を追加してください。</div>`;
-  const t=totals();$("subtotal").textContent=yen(t.subtotal);$("shipping-cost").textContent=yen(t.shipping);$("tax-cost").textContent=yen(t.tax);$("grand-total").textContent=yen(t.total);
-}
-function openCart(){
-  $("cart-drawer").classList.add("open");$("cart-drawer").setAttribute("aria-hidden","false");$("overlay").hidden=false;document.body.style.overflow="hidden";
-}
-function closeCart(){
-  $("cart-drawer").classList.remove("open");$("cart-drawer").setAttribute("aria-hidden","true");$("overlay").hidden=true;document.body.style.overflow="";
+ const arr=lines();$("top-cart-count").textContent=arr.reduce((s,x)=>s+x.qty,0);
+ $("cart-list").innerHTML=arr.length?arr.map(({p,qty})=>`<div class="cart-line"><div><strong>${p.name}</strong><br><small>${p.sku} / ${p.unit}</small></div><label>数量 <input type="number" min="1" max="99" value="${qty}" data-change="${p.id}"></label><strong>${yen(p.price*qty)}</strong><button data-remove="${p.id}">削除</button></div>`).join(""):"カートに商品は入っていません。";
+ const t=compute();$("subtotal").textContent=yen(t.subtotal);$("shipping").textContent=yen(t.shipping);$("tax").textContent=yen(t.tax);$("total").textContent=yen(t.total);
 }
 document.addEventListener("click",e=>{
-  const add=e.target.closest("[data-add]");if(add){addToCart(Number(add.dataset.add));return;}
-  const qty=e.target.closest("[data-qty]");if(qty){changeQty(Number(qty.dataset.qty),Number(qty.dataset.delta));return;}
-  const remove=e.target.closest("[data-remove]");if(remove){removeItem(Number(remove.dataset.remove));return;}
-  const cat=e.target.closest("[data-category]");if(cat){activeCategory=cat.dataset.category;document.querySelectorAll("[data-category]").forEach(b=>b.classList.toggle("active",b===cat));renderProducts();if(window.innerWidth<720)$("products").scrollIntoView({behavior:"smooth"});}
+ const cat=e.target.closest("[data-category]");if(cat){category=cat.dataset.category;$("category-label").textContent=cat.textContent;renderProducts();document.querySelectorAll("[data-category]").forEach(a=>a.style.background="");cat.style.background="#fff4c8";return;}
+ const add=e.target.closest("[data-add]");if(add){const id=+add.dataset.add,qty=+$(`qty-${id}`).value;cart[id]=(cart[id]||0)+qty;renderCart();showToast("カートに追加しました");return;}
+ const rem=e.target.closest("[data-remove]");if(rem){delete cart[+rem.dataset.remove];renderCart();return;}
+ const s=e.target.closest("[data-sort]");if(s){sort=s.dataset.sort;renderProducts();}
 });
-$("search-input").addEventListener("input",renderProducts);
-$("clear-search").addEventListener("click",()=>{$("search-input").value="";renderProducts();$("search-input").focus();});
-$("sort-select").addEventListener("change",renderProducts);
-["region-select","shipping-select","package-count"].forEach(id=>$(id).addEventListener("change",renderCart));
-$("open-cart").addEventListener("click",openCart);
-$("close-cart").addEventListener("click",closeCart);
-$("continue-shopping").addEventListener("click",closeCart);
-$("overlay").addEventListener("click",closeCart);
-document.addEventListener("keydown",e=>{if(e.key==="Escape")closeCart();});
-$("demo-checkout").addEventListener("click",()=>{
-  const lines=getCartLines();if(!lines.length){showToast("先に商品をカートに入れてください");return;}
-  const t=totals();
-  alert("【注文確認デモ】\n\n"+lines.map(l=>`${l.product.name} × ${l.qty} = ${yen(l.product.price*l.qty)}`).join("\n")+
-    `\n\n商品小計：${yen(t.subtotal)}\n送料（税抜）：${yen(t.shipping)}\n消費税（仮計算）：${yen(t.tax)}\n合計：${yen(t.total)}\n\nこれはデモです。注文・決済は実行されていません。`);
-});
+$("search-button").addEventListener("click",renderProducts);
+$("search").addEventListener("keydown",e=>{if(e.key==="Enter")renderProducts()});
+$("reset-button").addEventListener("click",()=>{category="all";$("category-label").textContent="すべての商品";$("search").value="";renderProducts();});
+$("product-list").addEventListener("change",e=>{if(e.target.dataset.change){const id=+e.target.dataset.change,qty=Math.max(1,Math.min(99,+e.target.value||1));cart[id]=qty;renderCart();}});
+["region","delivery","packages"].forEach(id=>$(id).addEventListener("change",renderCart));
+$("checkout").addEventListener("click",()=>{const arr=lines();if(!arr.length){showToast("カートに商品を入れてください");return;}const t=compute();alert("【注文内容確認デモ】\n"+arr.map(x=>`${x.p.name} × ${x.qty}：${yen(x.p.price*x.qty)}`).join("\n")+`\n\n商品合計：${yen(t.subtotal)}\n送料：${yen(t.shipping)}\n消費税（仮計算）：${yen(t.tax)}\n合計：${yen(t.total)}\n\n注文・決済は実行されていません。`);});
+document.querySelectorAll('a[href="#cart"]').forEach(a=>a.addEventListener("click",()=>setTimeout(()=> $("cart").scrollIntoView({behavior:"smooth"}),20)));
 renderProducts();renderCart();
