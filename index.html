@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="花ネットの旧サイト構成を参考にした、商品検索・カート・送料計算対応の再現デモです。">
+  <title>花ネット｜生花・切り花・花材の卸売通販（再現デモ）</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="topline">切り花・花鉢・花苗・観葉植物を仲卸価格でお届けするデモサイト</div>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#" aria-label="花ネット ホーム">
+        <span class="brand-mark">花</span>
+        <span><strong>花ネット</strong><small>HANANET · FLOWER WHOLESALE</small></span>
+      </a>
+      <div class="header-message">新鮮なお花を、花屋さんにもご家庭にも。</div>
+      <button class="cart-open" id="open-cart" aria-label="カートを開く">🛒 カート <span id="cart-count">0</span></button>
+    </div>
+    <nav class="main-nav" aria-label="メインメニュー">
+      <a href="#home">ホーム</a><a href="#products">商品一覧</a><a href="#new-arrivals">新入荷情報</a><a href="#shipping">送料・発送について</a><a href="#about">花ネットについて</a>
+    </nav>
+  </header>
+
+  <main class="page-layout" id="home">
+    <aside class="sidebar">
+      <section class="side-panel">
+        <h2>商品カテゴリ</h2>
+        <div class="side-links" id="category-links">
+          <button data-category="all" class="active">すべての商品</button>
+          <button data-category="sale">業者様ご用達！特価品</button>
+          <button data-category="preserved">プリザーブドフラワー</button>
+          <button data-category="cut">切り花・花材・葉物・枝物</button>
+          <button data-category="pot">鉢花・鉢植え</button>
+          <button data-category="seedling">花苗・野菜苗</button>
+          <button data-category="green">観葉植物</button>
+          <button data-category="memorial">仏花・墓花</button>
+          <button data-category="orchid">胡蝶蘭</button>
+          <button data-category="garden">園芸用品</button>
+          <button data-category="bouquet">バラの花束</button>
+          <button data-category="gift">お祝い用花束</button>
+          <button data-category="arrangement">アレンジメント・花かご</button>
+          <button data-category="condolence">お供え・弔事</button>
+        </div>
+      </section>
+      <section class="side-panel">
+        <h2>会員様メニュー</h2>
+        <a class="side-row" href="#member">無料会員登録 <span>›</span></a>
+        <a class="side-row" href="#member">ログイン <span>›</span></a>
+        <a class="side-row" href="#member">登録変更・パスワード再発行 <span>›</span></a>
+        <p class="small-note">※会員機能は画面デモです。個人情報は送信・保存されません。</p>
+      </section>
+      <section class="side-panel">
+        <h2>ご利用案内</h2>
+        <a class="side-row" href="#shipping">発送上の注意事項 <span>›</span></a>
+        <a class="side-row" href="#shipping">購入規約 <span>›</span></a>
+        <a class="side-row" href="#about">会社概要 <span>›</span></a>
+        <a class="side-row" href="#contact">お問合せ・お見積り <span>›</span></a>
+        <a class="side-row" href="#contact">FAX注文について <span>›</span></a>
+      </section>
+      <section class="notice-card">
+        <h3>発送上の注意</h3>
+        <p>日曜日は発送業務・お客様対応をお休みする想定のデモ表示です。</p>
+        <p>北海道・東北・沖縄・離島は時間指定できない場合があります。</p>
+        <a href="#shipping">送料・発送条件を見る →</a>
+      </section>
+    </aside>
+
+    <div class="content">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">FLOWER WHOLESALE & GIFT</p>
+          <h1>花の仕入れ、贈りもの。<br><em>花ネット</em>へ。</h1>
+          <p>新鮮な切り花から、鉢花・花苗・観葉植物、花束やアレンジメントまで。</p>
+          <a class="primary-link" href="#products">商品を探す <span>→</span></a>
+        </div>
+        <div class="hero-image" role="img" aria-label="色とりどりの花束"></div>
+      </section>
+
+      <div class="feature-strip">
+        <div><span>✿</span><strong>新鮮なお花</strong><small>仕入れたてを発送</small></div>
+        <div><span>✿</span><strong>卸売価格</strong><small>花屋さんも一般の方も</small></div>
+        <div><span>✿</span><strong>ギフト対応</strong><small>花束・アレンジメント</small></div>
+      </div>
+
+      <section class="search-area" aria-label="商品検索">
+        <div>
+          <p class="eyebrow">FIND YOUR FLOWERS</p>
+          <h2>お花を探す</h2>
+        </div>
+        <div class="search-controls">
+          <label class="search-box"><span>⌕</span><input id="search-input" type="search" placeholder="商品名・カテゴリで検索" autocomplete="off"><button id="clear-search" aria-label="検索をクリア">×</button></label>
+          <select id="sort-select" aria-label="並び替え">
+            <option value="recommended">おすすめ順</option>
+            <option value="price-asc">価格が安い順</option>
+            <option value="price-desc">価格が高い順</option>
+            <option value="name">商品名順</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="products-section" id="products">
+        <div class="section-heading">
+          <div><p class="eyebrow">OUR FLOWERS</p><h2 id="product-heading">おすすめ商品</h2></div>
+          <span class="result-count" id="result-count"></span>
+        </div>
+        <div class="product-grid" id="product-grid"></div>
+        <p class="empty-state" id="empty-state" hidden>該当する商品がありません。検索語やカテゴリを変更してください。</p>
+      </section>
+
+      <section class="new-arrivals" id="new-arrivals">
+        <div class="section-heading"><div><p class="eyebrow">LATEST NEWS</p><h2>新入荷・特価情報</h2></div><span class="historical-label">旧サイト掲載情報を参考にしたデモ</span></div>
+        <div class="news-grid">
+          <article><span class="news-date">特価品</span><h3>ピンポン菊</h3><p>旧サイト保存資料の掲載価格例</p><strong>160円 <small>／本・当時の表示</small></strong></article>
+          <article><span class="news-date">切花特価品</span><h3>ガーベラ</h3><p>旧サイト保存資料の掲載価格例</p><strong>100円 <small>／本・当時の表示</small></strong></article>
+          <article><span class="news-date">鉢・苗</span><h3>アンスリューム</h3><p>旧サイト保存資料の掲載価格例</p><strong>3,500円 <small>／商品・当時の表示</small></strong></article>
+        </div>
+      </section>
+
+      <section class="shipping-section" id="shipping">
+        <div class="section-heading"><div><p class="eyebrow">DELIVERY GUIDE</p><h2>送料・発送について</h2></div></div>
+        <p class="muted">下記は旧サイトの保存資料に記載されていた税抜送料を、計算デモ用に再現したものです。現在の実際の送料ではありません。</p>
+        <div class="shipping-table-wrap">
+          <table class="shipping-table">
+            <thead><tr><th>配送方法</th><th>本州・四国・九州</th><th>北海道</th><th>沖縄</th></tr></thead>
+            <tbody>
+              <tr><th>常温便</th><td>1,300円</td><td>3,000円</td><td>4,200円</td></tr>
+              <tr><th>クール便</th><td>1,900円</td><td>3,600円</td><td>4,800円</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <ul class="shipping-notes">
+          <li>送料は1梱包ごとに計算します。</li>
+          <li>商品ごとの梱包数はデモ用の仮設定です。実際の梱包数は花の種類・長さ・数量などで変わります。</li>
+          <li>クール便は箱サイズや花の長さによって利用できない場合があります。</li>
+        </ul>
+      </section>
+      <section class="about-section" id="about">
+        <p class="eyebrow">ABOUT HANANET</p><h2>花ネットについて</h2>
+        <p>花ネットは、切り花・花鉢・花苗・観葉植物を卸売価格で販売する旧サイトの情報設計を参考にした再現デモです。掲載商品・価格・注文条件は実際の販売情報ではありません。</p>
+      </section>
+      <section class="contact-section" id="contact"><h2>お問い合わせ・お見積り</h2><p>このデモでは送信処理を行いません。実運用時には連絡先・利用規約・個人情報保護方針を正式な内容に差し替えてください。</p><a href="mailto:example@example.com">お問い合わせ方法を設定する</a></section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner"><a class="footer-brand" href="#home">花ネット</a><p>花の仕入れ・卸売・フラワーギフト</p><div><a href="#shipping">送料・発送</a><a href="#about">会社概要</a><a href="#contact">お問い合わせ</a></div><small>© HANANET — RECONSTRUCTION DEMO</small></div>
+  </footer>
+
+  <div class="overlay" id="overlay" hidden></div>
+  <aside class="cart-drawer" id="cart-drawer" aria-label="ショッピングカート" aria-hidden="true">
+    <div class="drawer-head"><div><p class="eyebrow">YOUR BASKET</p><h2>カートの中</h2></div><button id="close-cart" class="icon-button" aria-label="カートを閉じる">×</button></div>
+    <div id="cart-items" class="cart-items"></div>
+    <div class="cart-options">
+      <label>お届け先エリア<select id="region-select"><option value="mainland">本州・四国・九州</option><option value="hokkaido">北海道</option><option value="okinawa">沖縄</option></select></label>
+      <label>配送方法<select id="shipping-select"><option value="ambient">常温便</option><option value="cool">クール便</option></select></label>
+      <label>梱包数（デモ）<input id="package-count" type="number" min="1" max="20" value="1"></label>
+    </div>
+    <div class="totals">
+      <div><span>商品小計</span><strong id="subtotal">0円</strong></div>
+      <div><span>送料（税抜）</span><strong id="shipping-cost">0円</strong></div>
+      <div><span>消費税（商品・送料10%の仮計算）</span><strong id="tax-cost">0円</strong></div>
+      <div class="grand-total"><span>合計（税込・デモ）</span><strong id="grand-total">0円</strong></div>
+    </div>
+    <p class="cart-disclaimer">デモ専用：注文・決済・個人情報送信は行いません。梱包数は手動で変更できます。</p>
+    <button id="demo-checkout" class="checkout-button">注文内容を確認（デモ）</button>
+    <button id="continue-shopping" class="continue-button">買い物を続ける</button>
+  </aside>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
