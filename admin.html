@@ -41,7 +41,6 @@
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
   .modal-overlay.open { display: flex; }
   .modal-content { background: white; width: min(600px, 100%); max-height: 90vh; overflow-y: auto; padding: 25px; border-radius: 8px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); }
-  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 </style>
 </head>
 <body>
@@ -50,17 +49,13 @@
   <!-- ログイン画面 -->
   <div id="login-view" class="login-box">
     <h2>管理者ログイン</h2>
-    <p style="font-size: 12px; color: #877a72; margin-bottom: 20px;">花ネットの商品データを管理するにはログインしてください。</p>
     <div class="field">
       <label>管理者ID</label>
-      <input type="text" id="login-id" class="admin-login-input" value="admin" autocomplete="off">
+      <input type="text" id="login-id" value="admin" autocomplete="off">
     </div>
     <div class="field">
       <label>パスワード</label>
-      <div style="position:relative;">
-        <input type="password" id="login-pass" class="admin-login-input" placeholder="パスワードを入力" style="padding-right:50px;">
-        <button type="button" id="btn-show-admin-pw" style="position:absolute; right:5px; top:50%; transform:translateY(-50%); background:#eee; border:1px solid #ccc; font-size:10px; padding:3px 6px; border-radius:3px; cursor:pointer; user-select:none;">表示</button>
-      </div>
+      <input type="password" id="login-pass" placeholder="パスワードを入力">
     </div>
     <button class="btn-main" onclick="handleLogin()">ログイン</button>
     <div id="login-error" class="error-msg"></div>
@@ -90,13 +85,10 @@
           <th>商品画像 / 名称</th>
           <th>カテゴリ</th>
           <th>価格（税抜）</th>
-          <th>在庫</th>
           <th>操作</th>
         </tr>
       </thead>
-      <tbody id="admin-product-list">
-        <!-- JavaScriptで動的生成 -->
-      </tbody>
+      <tbody id="admin-product-list"></tbody>
     </table>
   </div>
 </div>
@@ -110,60 +102,22 @@
       <label>商品名</label>
       <input type="text" id="p-name">
     </div>
-    <div class="row">
-      <div class="field">
-        <label>価格（税抜・円）</label>
-        <input type="number" id="p-price">
-      </div>
-      <div class="field" style="margin-bottom:12px;">
-        <label style="display:block; font-size:12px; font-weight:bold; margin-bottom:4px;">カテゴリ（分類）</label>
-        <select id="p-category" style="width:100%; padding:7px; border:1px solid #ccc; border-radius:4px; box-sizing:border-box;">
-          <optgroup label="業者様ご用達！特価品">
-            <option value="preserved">プリザーブドフラワー大特価！</option>
-            <option value="cut">切り花・花材・葉物・枝物</option>
-            <option value="pot">鉢花・鉢植え</option>
-            <option value="seedling">花苗・野菜苗</option>
-            <option value="green">観葉植物</option>
-            <option value="grave">仏花・墓花</option>
-            <option value="orchid">胡蝶蘭</option>
-            <option value="garden">園芸用品</option>
-          </optgroup>
-          <optgroup label="フラワーギフト商品">
-            <option value="rose">バラの花束</option>
-            <option value="celebration">お祝い用花束</option>
-            <option value="arrangement">アレンジメント・花かご</option>
-            <option value="condolence">お供え・弔事</option>
-          </optgroup>
-        </select>
-      </div>
+    <div class="field">
+      <label>価格（税抜・円）</label>
+      <input type="number" id="p-price">
     </div>
-    <div class="row">
-      <div class="field">
-        <label>在庫数</label>
-        <input type="number" id="p-stock" value="20">
-      </div>
-      <div class="field">
-        <label>色・カラー</label>
-        <input type="text" id="p-color" value="おまかせ">
-      </div>
+    <div class="field">
+      <label>カテゴリ（分類）</label>
+      <input type="text" id="p-category" placeholder="例: cut">
     </div>
-    
-    <div class="field" style="margin-bottom:12px;">
-      <label style="display:block; font-size:12px; font-weight:bold; margin-bottom:4px;">商品画像（ファイル添付）</label>
-      <input type="file" id="product-image-file" accept="image/*" style="width:100%; padding:5px; border:1px solid #ccc; border-radius:4px; box-sizing:border-box; font-size:12px;">
-      <div id="image-preview-container" style="margin-top:5px; font-size:11px; color:#666;"></div>
+    <div class="field">
+      <label>商品画像（ファイル添付）</label>
+      <input type="file" id="product-image-file" accept="image/*">
+      <div id="image-preview-container" style="margin-top:5px;"></div>
     </div>
-
     <div class="field">
       <label>商品説明</label>
       <textarea id="p-desc" rows="3"></textarea>
-    </div>
-    <div class="field">
-      <label>配送温度帯</label>
-      <select id="p-shipping">
-        <option value="常温">常温</option>
-        <option value="クール">クール</option>
-      </select>
     </div>
 
     <div style="display: flex; gap: 10px; margin-top: 20px;">
@@ -177,19 +131,15 @@
 let products = [];
 let currentImageBase64 = "";
 
-// APIから最新の商品データを取得する関数
 async function fetchAdminProducts() {
   try {
     const res = await fetch('/api/products');
     if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data)) {
-        products = data;
-        renderAdminProducts();
-      }
+      products = await res.json();
+      renderAdminProducts();
     }
   } catch (err) {
-    console.error("商品データの取得に失敗しました", err);
+    console.error("データ取得エラー", err);
   }
 }
 
@@ -199,43 +149,17 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('admin-view').style.display = 'block';
     fetchAdminProducts();
   }
-
-  // パスワード「左クリックしている間だけ見える」機能
-  const pwBtn = document.getElementById('btn-show-admin-pw');
-  const pwInput = document.getElementById('login-pass');
-  if (pwBtn && pwInput) {
-    const show = () => pwInput.type = "text";
-    const hide = () => pwInput.type = "password";
-    pwBtn.addEventListener("mousedown", show);
-    pwBtn.addEventListener("mouseup", hide);
-    pwBtn.addEventListener("mouseleave", hide);
-    pwBtn.addEventListener("touchstart", (e) => { e.preventDefault(); show(); });
-    pwBtn.addEventListener("touchend", hide);
-  }
-
-  // ログイン画面でのエンターキー対応
-  document.addEventListener("keydown", (e) => {
-    const loginView = document.getElementById('login-view');
-    if (e.key === "Enter" && loginView && loginView.style.display !== "none") {
-      e.preventDefault();
-      handleLogin();
-    }
-  });
 });
 
-// ファイル選択時のプレビューおよびBase64変換処理
 const fileInput = document.getElementById('product-image-file');
 if (fileInput) {
   fileInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = function(uploadEvent) {
-        currentImageBase64 = uploadEvent.target.result;
-        const preview = document.getElementById('image-preview-container');
-        if (preview) {
-          preview.innerHTML = `<img src="${currentImageBase64}" style="width:50px; height:50px; object-fit:cover; border-radius:3px; margin-top:4px;" alt="プレビュー">`;
-        }
+      reader.onload = function(e) {
+        currentImageBase64 = e.target.result;
+        document.getElementById('image-preview-container').innerHTML = `<img src="${currentImageBase64}" style="width:50px; height:50px; object-fit:cover;">`;
       };
       reader.readAsDataURL(file);
     }
@@ -259,7 +183,6 @@ function handleLogout() {
   sessionStorage.removeItem('hananet_admin_logged_in');
   document.getElementById('admin-view').style.display = 'none';
   document.getElementById('login-view').style.display = 'block';
-  document.getElementById('login-pass').value = '';
 }
 
 function renderAdminProducts() {
@@ -267,18 +190,17 @@ function renderAdminProducts() {
   if (!tbody) return;
   tbody.innerHTML = '';
   
-  if(products.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#999; padding:20px;">登録されている商品はありません</td></tr>`;
+  if(!products || products.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#999; padding:20px;">登録されている商品はありません</td></tr>`;
     return;
   }
 
   products.forEach(p => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td><img src="${p.image || ''}" style="width:45px; height:45px; object-fit:cover; border-radius:4px;" onerror="this.src='https://via.placeholder.com/45'">${p.name}</td>
-      <td>${p.categoryName || p.category}</td>
+      <td><img src="${p.image || ''}" onerror="this.src='https://via.placeholder.com/45'">${p.name}</td>
+      <td>${p.category}</td>
       <td>¥${Number(p.price).toLocaleString()}</td>
-      <td>${p.stock || 0}</td>
       <td>
         <button class="btn-sm" onclick="openProductModal(${p.id})">編集</button>
         <button class="btn-sm btn-del" onclick="deleteProduct(${p.id})">削除</button>
@@ -302,14 +224,10 @@ function openProductModal(id = null) {
       document.getElementById('p-name').value = p.name;
       document.getElementById('p-price').value = p.price;
       document.getElementById('p-category').value = p.category;
-      document.getElementById('p-stock').value = p.stock || 20;
-      document.getElementById('p-color').value = p.color || '';
-      document.getElementById('p-desc').value = p.description || p.desc || '';
-      document.getElementById('p-shipping').value = p.shipping || '常温';
-      
+      document.getElementById('p-desc').value = p.description || '';
       currentImageBase64 = p.image || "";
       if (currentImageBase64) {
-        document.getElementById('image-preview-container').innerHTML = `<img src="${currentImageBase64}" style="width:50px; height:50px; object-fit:cover; border-radius:3px; margin-top:4px;" alt="現在画像">`;
+        document.getElementById('image-preview-container').innerHTML = `<img src="${currentImageBase64}" style="width:50px; height:50px; object-fit:cover;">`;
       }
     }
   } else {
@@ -318,10 +236,7 @@ function openProductModal(id = null) {
     document.getElementById('p-name').value = '';
     document.getElementById('p-price').value = '';
     document.getElementById('p-category').value = 'cut';
-    document.getElementById('p-stock').value = '20';
-    document.getElementById('p-color').value = 'おまかせ';
     document.getElementById('p-desc').value = '';
-    document.getElementById('p-shipping').value = '常温';
   }
 }
 
@@ -333,20 +248,14 @@ async function saveProductData() {
   const id = document.getElementById('edit-id').value;
   const name = document.getElementById('p-name').value.trim();
   const price = Number(document.getElementById('p-price').value);
-  const categorySelect = document.getElementById('p-category');
-  const category = categorySelect.value;
-  const categoryName = categorySelect.options[categorySelect.selectedIndex].text;
+  const category = document.getElementById('p-category').value.trim();
   const description = document.getElementById('p-desc').value;
-  const stock = Number(document.getElementById('p-stock').value);
-  const color = document.getElementById('p-color').value;
-  const shipping = document.getElementById('p-shipping').value;
   
   if(!name || !price || !category) {
     alert('「商品名」「価格」「カテゴリ」は必須です。');
     return;
   }
 
-  // 既存画像の維持、または新しくアップロードされた画像
   let existingImage = "";
   if(id) {
     const existing = products.find(x => x.id === Number(id));
@@ -356,15 +265,11 @@ async function saveProductData() {
 
   const productPayload = {
     id: id ? Number(id) : null,
-    name: name,
-    price: price,
-    category: category,
-    categoryName: categoryName,
+    name,
+    price,
+    category,
     image: finalImage,
-    description: description,
-    stock: stock,
-    color: color,
-    shipping: shipping
+    description
   };
 
   try {
@@ -377,7 +282,7 @@ async function saveProductData() {
     if (res.ok) {
       alert('商品を保存しました！');
       closeProductModal();
-      fetchAdminProducts(); // 再読み込みして最新データを反映
+      fetchAdminProducts();
     } else {
       alert('保存に失敗しました。');
     }
