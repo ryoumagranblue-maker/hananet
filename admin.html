@@ -112,10 +112,27 @@
         <label>価格（税抜・円）</label>
         <input type="number" id="p-price">
       </div>
-      <div class="field">
-        <label>カテゴリコード (cut, pot, seedling, green, rose 等)</label>
-        <input type="text" id="p-category">
-      </div>
+      <div class="field" style="margin-bottom:12px;">
+  <label style="display:block; font-size:12px; font-weight:bold; margin-bottom:4px;">カテゴリ（分類）</label>
+  <select id="product-category" style="width:100%; padding:7px; border:1px solid #ccc; border-radius:4px; box-sizing:border-box;">
+    <optgroup label="業者様ご用達！特価品">
+      <option value="preserved">プリザーブドフラワー大特価！</option>
+      <option value="cut">切り花・花材・葉物・枝物</option>
+      <option value="pot">鉢花・鉢植え</option>
+      <option value="seedling">花苗・野菜苗</option>
+      <option value="green">観葉植物</option>
+      <option value="grave">仏花・墓花</option>
+      <option value="orchid">胡蝶蘭</option>
+      <option value="garden">園芸用品</option>
+    </optgroup>
+    <optgroup label="フラワーギフト商品">
+      <option value="rose">バラの花束</option>
+      <option value="celebration">お祝い用花束</option>
+      <option value="arrangement">アレンジメント・花かご</option>
+      <option value="condolence">お供え・弔事</option>
+    </optgroup>
+  </select>
+</div>
     </div>
     <div class="row">
       <div class="field">
