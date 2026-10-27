@@ -80,13 +80,28 @@ document.querySelectorAll('a[href="#cart"]').forEach(a=>a.addEventListener("clic
 
 renderProducts();renderCart();
 
-// --- 会員機能（localStorage連携） ---
+// --- 会員機能（localStorage連携・入力リセット・メール認証・長押しパスワード表示） ---
 document.addEventListener("DOMContentLoaded", () => {
   const modal = document.getElementById("auth-modal");
   const modalTitle = document.getElementById("auth-modal-title");
   const formLogin = document.getElementById("form-login");
   const formRegister = document.getElementById("form-register");
+  const formVerify = document.getElementById("form-verify");
   const formMypage = document.getElementById("form-mypage");
+
+  let pendingUser = null; // 認証待ちの一時保存データ
+
+  // フォームの入力内容を完全にリセットする関数
+  function resetAuthForms() {
+    ["login-userid", "login-password", "reg-name", "reg-userid", "reg-email", "reg-password", "verify-code"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = "";
+    });
+    ["login-msg", "reg-msg", "verify-msg"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = "";
+    });
+  }
 
   // ログイン状態の確認とボタン表示の更新
   function updateAuthUI() {
@@ -109,14 +124,15 @@ document.addEventListener("DOMContentLoaded", () => {
   function openAuthModal(type) {
     if (!modal) return;
     modal.style.display = "flex";
+    resetAuthForms(); // 開くときに必ずクリア
     const currentUser = JSON.parse(localStorage.getItem("hananet_current_user") || "null");
 
     if (type === "login") {
       if (currentUser) {
-        // すでにログイン中の場合はマイページを表示
         modalTitle.textContent = "会員様窓口（マイページ）";
         formLogin.style.display = "none";
         formRegister.style.display = "none";
+        formVerify.style.display = "none";
         formMypage.style.display = "block";
         document.getElementById("mp-username").textContent = currentUser.name;
         document.getElementById("mp-userid").textContent = currentUser.userId;
@@ -125,16 +141,18 @@ document.addEventListener("DOMContentLoaded", () => {
         modalTitle.textContent = "ログイン";
         formLogin.style.display = "block";
         formRegister.style.display = "none";
+        formVerify.style.display = "none";
         formMypage.style.display = "none";
       }
     } else if (type === "register") {
       if (currentUser) {
-        openAuthModal("login"); // ログイン中ならマイページへ
+        openAuthModal("login");
         return;
       }
       modalTitle.textContent = "新規会員登録";
       formLogin.style.display = "none";
       formRegister.style.display = "block";
+      formVerify.style.display = "none";
       formMypage.style.display = "none";
     }
   }
@@ -149,7 +167,6 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
       openAuthModal("register");
     }
-    // サイドバーの会員メニュー等への対応
     if (e.target.textContent.includes("ログイン")) {
       e.preventDefault();
       openAuthModal("login");
@@ -163,10 +180,32 @@ document.addEventListener("DOMContentLoaded", () => {
   // モーダル閉じる
   const closeBtn = document.getElementById("btn-close-modal");
   if (closeBtn) {
-    closeBtn.addEventListener("click", () => { modal.style.display = "none"; });
+    closeBtn.addEventListener("click", () => {
+      modal.style.display = "none";
+      resetAuthForms();
+    });
   }
 
-  // 新規登録処理
+  // パスワード「左クリックしている間だけ見える」機能
+  function setupHoldToShow(btnId, inputId) {
+    const btn = document.getElementById(btnId);
+    const input = document.getElementById(inputId);
+    if (!btn || !input) return;
+
+    const show = () => input.type = "text";
+    const hide = () => input.type = "password";
+
+    btn.addEventListener("mousedown", show);
+    btn.addEventListener("mouseup", hide);
+    btn.addEventListener("mouseleave", hide);
+    // スマホの長押し対応
+    btn.addEventListener("touchstart", (e) => { e.preventDefault(); show(); });
+    btn.addEventListener("touchend", hide);
+  }
+  setupHoldToShow("btn-show-login-pw", "login-password");
+  setupHoldToShow("btn-show-reg-pw", "reg-password");
+
+  // ① 新規登録ボタン（押すとメール認証画面へ進む）
   const submitReg = document.getElementById("btn-submit-register");
   if (submitReg) {
     submitReg.addEventListener("click", () => {
@@ -180,6 +219,10 @@ document.addEventListener("DOMContentLoaded", () => {
         msg.textContent = "すべての項目を入力してください。";
         return;
       }
+      if (!email.includes("@")) {
+        msg.textContent = "有効なメールアドレスを入力してください。";
+        return;
+      }
 
       let users = JSON.parse(localStorage.getItem("hananet_users") || "[]");
       if (users.some(u => u.userId === userId)) {
@@ -187,14 +230,38 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      const newUser = { name, userId, email, password };
-      users.push(newUser);
-      localStorage.setItem("hananet_users", JSON.stringify(users));
-      localStorage.setItem("hananet_current_user", JSON.stringify(newUser));
+      // 一時保存してメール認証ステップへ
+      pendingUser = { name, userId, email, password };
+      
+      // 認証画面に切り替え
+      formRegister.style.display = "none";
+      formVerify.style.display = "block";
+      modalTitle.textContent = "メールアドレス認証";
+      alert("【メール認証デモ】\n" + email + " 宛に確認コードを送信しました。\nデモ用確認コード: 1234 を入力してください。");
+    });
+  }
 
-      alert("会員登録が完了し、ログインしました！");
-      modal.style.display = "none";
-      updateAuthUI();
+  // ② メール認証コード確認ボタン
+  const submitVerify = document.getElementById("btn-submit-verify");
+  if (submitVerify) {
+    submitVerify.addEventListener("click", () => {
+      const code = document.getElementById("verify-code").value.trim();
+      const verifyMsg = document.getElementById("verify-msg");
+
+      if (code === "1234") {
+        let users = JSON.parse(localStorage.getItem("hananet_users") || "[]");
+        users.push(pendingUser);
+        localStorage.setItem("hananet_users", JSON.stringify(users));
+        localStorage.setItem("hananet_current_user", JSON.stringify(pendingUser));
+
+        alert("メール認証が成功し、会員登録が完了しました！");
+        modal.style.display = "none";
+        resetAuthForms();
+        updateAuthUI();
+        pendingUser = null;
+      } else {
+        verifyMsg.textContent = "確認コードが間違っています（デモコードは 1234 です）。";
+      }
     });
   }
 
@@ -213,6 +280,7 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("hananet_current_user", JSON.stringify(found));
         alert("ログインしました！");
         modal.style.display = "none";
+        resetAuthForms();
         updateAuthUI();
       } else {
         msg.textContent = "会員IDまたはパスワードが正しくありません。";
@@ -220,13 +288,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ログアウト処理
+  // ログアウト処理（確実にデータをクリアしてリセット）
   const btnLogout = document.getElementById("btn-logout");
   if (btnLogout) {
     btnLogout.addEventListener("click", () => {
       localStorage.removeItem("hananet_current_user");
       alert("ログアウトしました。");
       modal.style.display = "none";
+      resetAuthForms();
       updateAuthUI();
     });
   }
