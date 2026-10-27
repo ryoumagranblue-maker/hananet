@@ -65,3 +65,90 @@ $("product-list").addEventListener("change",e=>{if(e.target.dataset.change){cons
 $("checkout").addEventListener("click",()=>{const arr=lines();if(!arr.length){showToast("カートに商品を入れてください");return;}const t=compute();alert("【注文内容確認デモ】\n"+arr.map(x=>`${x.p.name} × ${x.qty}：${yen(x.p.price*x.qty)}`).join("\n")+`\n\n商品合計：${yen(t.subtotal)}\n送料：${yen(t.shipping)}\n消費税（仮計算）：${yen(t.tax)}\n合計：${yen(t.total)}\n\n注文・決済は実行されていません。`);});
 document.querySelectorAll('a[href="#cart"]').forEach(a=>a.addEventListener("click",()=>setTimeout(()=> $("cart").scrollIntoView({behavior:"smooth"}),20)));
 renderProducts();renderCart();
+
+// 商品一覧を取得して画面に表示する関数
+async function fetchProducts() {
+  try {
+    const response = await fetch('/api/products');
+    const products = await response.json();
+    
+    const productListContainer = document.getElementById('product-list');
+    if (!productListContainer) return;
+
+    productListContainer.innerHTML = '';
+    
+    products.forEach(product => {
+      const item = document.createElement('div');
+      item.className = 'product-item';
+      item.innerHTML = `
+        <h3>${product.name}</h3>
+        <p>価格: ¥${product.price}</p>
+        <p>カテゴリ: ${product.category}</p>
+        <p>${product.description || ''}</p>
+        <button onclick="deleteProduct('${product.id}')">削除</button>
+      `;
+      productListContainer.appendChild(item);
+    });
+  } catch (error) {
+    console.error('商品データの取得に失敗しました:', error);
+  }
+}
+
+// 商品を追加する関数（フォームの送信イベントなどに紐付けます）
+async function addProduct(event) {
+  event.preventDefault();
+
+  const name = document.getElementById('product-name').value;
+  const price = document.getElementById('product-price').value;
+  const category = document.getElementById('product-category').value;
+  const description = document.getElementById('product-description').value;
+  const image = document.getElementById('product-image')?.value || '';
+
+  try {
+    const response = await fetch('/api/products', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name, price, category, description, image }),
+    });
+
+    const result = await response.json();
+    if (result.success) {
+      alert('商品を追加しました！');
+      fetchProducts(); // 一覧を再読み込み
+    } else {
+      alert('エラー: ' + result.error);
+    }
+  } catch (error) {
+    console.error('商品の追加に失敗しました:', error);
+  }
+}
+
+//商品を削除する関数
+async function deleteProduct(id) {
+  if (!confirm('本当に削除しますか？')) return;
+
+  try {
+    const response = await fetch('/api/products', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ id }),
+    });
+
+    const result = await response.json();
+    if (result.success) {
+      alert('商品を削除しました');
+      fetchProducts(); // 一覧を再読み込み
+    } else {
+      alert('エラー: ' + result.error);
+    }
+  } catch (error) {
+    console.error('商品の削除に失敗しました:', error);
+  }
+}
+
+// ページ読み込み時に商品一覧を取得
+window.addEventListener('DOMContentLoaded', fetchProducts);
