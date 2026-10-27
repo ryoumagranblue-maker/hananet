@@ -14,7 +14,27 @@ const defaultProducts = [
   {id: 12, name: "お供え・弔事アレンジ", sku: "COND", category: "condolence", categoryName: "お供え・弔事", price: 3500, unit: "個", pricePerStem: null, usual: null, color: "白・淡色系", description: "お供え・弔事カテゴリ商品。", image: "https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/main_2_3.gif"}
 ];
 
-let PRODUCTS = JSON.parse(localStorage.getItem('hananet_products') || 'null') || defaultProducts;
+let PRODUCTS = defaultProducts; // 初期値
+
+// APIから最新の商品データを非同期で取得して画面を再描画する関数
+async function fetchProducts() {
+  try {
+    const res = await fetch('/api/products');
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        PRODUCTS = data;
+        renderProducts();
+        renderCart();
+      }
+    }
+  } catch (err) {
+    console.error("商品データの取得に失敗しました", err);
+  }
+}
+
+// 起動時にデータを取得
+fetchProducts();
 const rates = {mainland:{ambient:1300,cool:1900},hokkaido:{ambient:3000,cool:3600},okinawa:{ambient:4200,cool:4800}};
 let category = "all", sort = "default", cart = {};
 
