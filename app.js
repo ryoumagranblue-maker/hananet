@@ -1,4 +1,29 @@
-// 初期デフォルト商品データ
+let PRODUCTS = []; // 初期値は空にする（APIから取得するため）
+
+// APIから最新の商品データを非同期で取得して画面を再描画する関数
+async function fetchProducts() {
+  try {
+    const res = await fetch('/api/products');
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        PRODUCTS = data;
+      } else {
+        // 万が一データが空の場合は初期デフォルトを使用
+        PRODUCTS = defaultProducts;
+      }
+      renderProducts();
+      renderCart();
+    }
+  } catch (err) {
+    console.error("商品データの取得に失敗しました", err);
+    PRODUCTS = defaultProducts;
+    renderProducts();
+    renderCart();
+  }
+}
+
+// 初期デフォルト商品データ（APIが万が一接続できない場合のフォールバック用）
 const defaultProducts = [
   {id: 1, name: "奉仕品ピンポン菊 1ロット10本 白", sku: "K011", category: "cut", categoryName: "切り花・花材・葉物・枝物", price: 1600, unit: "ロット（10本）", pricePerStem: 160, usual: 180, color: "白", description: "奉仕価格での販売は1回の発送につき1ロットまで。70cm程度。", image: "https://web.archive.org/web/20230929235936im_/http://hananet.jp/image/product/100073.jpg"},
   {id: 2, name: "奉仕品ピンポン菊 1ロット10本 黄色", sku: "K010", category: "cut", categoryName: "切り花・花材・葉物・枝物", price: 1600, unit: "ロット（10本）", pricePerStem: 160, usual: 180, color: "黄色", description: "奉仕価格での販売は1回の発送につき1ロットまで。70cm程度。", image: "https://web.archive.org/web/20230929230527im_/http://hananet.jp/image/product/100205.jpg"},
@@ -11,29 +36,10 @@ const defaultProducts = [
   {id: 9, name: "アンスリューム", sku: "A3500", category: "pot", categoryName: "鉢花・鉢植え", price: 3500, unit: "商品", pricePerStem: null, usual: null, color: "入荷時期による", description: "新入荷情報の鉢花商品。", image: "https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/main_2_3.gif"},
   {id: 10, name: "胡蝶蘭", sku: "ORCHID", category: "orchid", categoryName: "胡蝶蘭", price: 8800, unit: "鉢", pricePerStem: null, usual: null, color: "白など", description: "胡蝶蘭カテゴリ商品。", image: "https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/main_2_3.gif"},
   {id: 11, name: "観葉植物", sku: "GREEN", category: "green", categoryName: "観葉植物", price: 2800, unit: "商品", pricePerStem: null, usual: null, color: "商品による", description: "観葉植物カテゴリ商品。", image: "https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/main_2_3.gif"},
-  {id: 12, name: "お供え・弔事アレンジ", sku: "COND", category: "condolence", categoryName: "お供え・弔事", price: 3500, unit: "個", pricePerStem: null, usual: null, color: "白・淡色系", description: "お供え・弔事カテゴリ商品。", image: "https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/main_2_3.gif"}
+  {id: 12, name: "お供え・弔事アレンジ", sku: "COND", category: "condolence", categoryName: "お供え・弔事", price: 3500, unit: "個", pricePerStem: null, usual: null, color: "白・淡色系", description: "お供え・弔事カテゴリ商品。", image: "https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/main_2_3.gif]"
 ];
 
-let PRODUCTS = defaultProducts; // 初期値
-
-// APIから最新の商品データを非同期で取得して画面を再描画する関数
-async function fetchProducts() {
-  try {
-    const res = await fetch('/api/products');
-    if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
-        PRODUCTS = data;
-        renderProducts();
-        renderCart();
-      }
-    }
-  } catch (err) {
-    console.error("商品データの取得に失敗しました", err);
-  }
-}
-
-// 起動時にデータを取得
+// 起動時にデータを取得して描画を実行
 fetchProducts();
 const rates = {mainland:{ambient:1300,cool:1900},hokkaido:{ambient:3000,cool:3600},okinawa:{ambient:4200,cool:4800}};
 let category = "all", sort = "default", cart = {};
