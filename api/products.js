@@ -1,12 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Vercel上の様々な環境変数名に対応できるように確実に取得します
-const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseKey = process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-
-if (!supabaseUrl || !supabaseUrl.startsWith('http')) {
-  console.error("致命的エラー: Supabase URLが正しく設定されていません。現在の値:", supabaseUrl);
-}
+// --- ▼ ここに実際のSupabaseの情報を直接入力してください ▼ ---
+const supabaseUrl = 'https://bemeursptcubwjeziazw.supabase.co/rest/v1/'; 
+const supabaseKey = 'sb_publishable_wm_9iMXIIKN7JvHeGl7DTw_dkyv5ERx';
+// -----------------------------------------------------------
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
