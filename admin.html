@@ -6,150 +6,299 @@
 <title>商品管理ダッシュボード - 花ネット</title>
 <link rel="stylesheet" href="styles.css">
 <style>
-  body { font-family: sans-serif; background: #f4f6f9; margin: 0; padding: 20px; }
-  .admin-container { max-width: 900px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-  h1 { font-size: 24px; border-bottom: 2px solid #ddd; padding-bottom: 10px; margin-bottom: 20px; }
-  .form-group { margin-bottom: 15px; }
-  label { display: block; font-weight: bold; margin-bottom: 5px; }
-  input[type="text"], input[type="number"], textarea { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
-  button { background: #28a745; color: white; border: none; padding: 10px 20px; font-size: 16px; cursor: pointer; border-radius: 4px; }
-  button:hover { background: #218838; }
-  .product-list-table { width: 100%; border-collapse: collapse; margin-top: 30px; }
-  .product-list-table th, .product-list-table td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-  .product-list-table th { background: #f8f9fa; }
-  .btn-delete { background: #dc3545; padding: 5px 10px; font-size: 14px; }
-  .btn-delete:hover { background: #c82333; }
-  .back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+  body { background: #fbf7f2; padding: 20px; }
+  .admin-wrapper { max-width: 1000px; margin: 0 auto; background: #fff; border: 1px solid #eadbd7; border-radius: 8px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+  .admin-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #5b793f; padding-bottom: 15px; margin-bottom: 25px; }
+  .admin-header h1 { font-size: 20px; color: #5b793f; margin: 0; }
+  .back-link { color: #b65b78; text-decoration: none; font-size: 12px; font-weight: bold; }
+  .back-link:hover { text-decoration: underline; }
+  
+  /* ログイン画面 */
+  .login-box { max-width: 400px; margin: 50px auto; padding: 30px; border: 1px solid #eadbd7; border-radius: 8px; background: #fffaf8; text-align: center; }
+  .field { margin-bottom: 15px; text-align: left; }
+  .field label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #4b433e; }
+  .field input, .field textarea, .field select { width: 100%; padding: 8px; border: 1px solid #e0d4cd; border-radius: 4px; box-sizing: border-box; }
+  .btn-main { background: #789c55; color: white; border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; width: 100%; }
+  .btn-main:hover { background: #4d7435; }
+  .error-msg { color: #b04e5b; font-size: 12px; margin-top: 10px; }
+
+  /* 管理画面本体 */
+  .product-admin-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12px; }
+  .product-admin-table th, .product-admin-table td { border: 1px solid #e3e8d9; padding: 8px 10px; text-align: left; }
+  .product-admin-table th { background: #f3f7eb; color: #4d7435; font-weight: bold; }
+  .product-admin-table td img { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; vertical-align: middle; margin-right: 8px; }
+  
+  .btn-sm { padding: 4px 10px; font-size: 11px; border: 1px solid #d96b91; background: #fff0f4; color: #b84c73; border-radius: 3px; cursor: pointer; margin-right: 4px; }
+  .btn-sm:hover { background: #d96b91; color: white; }
+  .btn-del { border-color: #ccc; background: #f5f5f5; color: #666; }
+  .btn-del:hover { background: #d9534f; color: white; border-color: #d9534f; }
+  
+  .top-action-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .btn-add { background: #d96b91; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+  .btn-add:hover { background: #b84c73; }
+
+  /* モーダルフォーム */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+  .modal-overlay.open { display: flex; }
+  .modal-content { background: white; width: min(600px, 100%); max-height: 90vh; overflow-y: auto; padding: 25px; border-radius: 8px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+  .check-wrap { display: flex; align-items: center; gap: 8px; margin: 15px 0; font-size: 12px; }
 </style>
 </head>
 <body>
 
-<div class="admin-container">
-  <a href="index.html" class="back-link">← サイトトップへ戻る</a>
-  <h1>商品管理ダッシュボード</h1>
+<div id="app">
+  <!-- ログイン画面 -->
+  <div id="login-view" class="login-box">
+    <h2>管理者ログイン</h2>
+    <p style="font-size: 12px; color: #877a72; margin-bottom: 20px;">花ネットの商品データを管理するにはログインしてください。</p>
+    <div class="field">
+      <label>管理者ID</label>
+      <input type="text" id="login-id" value="admin">
+    </div>
+    <div class="field">
+      <label>パスワード</label>
+      <input type="password" id="login-pass" placeholder="パスワードを入力">
+    </div>
+    <button class="btn-main" onclick="handleLogin()">ログイン</button>
+    <div id="login-error" class="error-msg"></div>
+    <div style="margin-top: 20px;">
+      <a href="index.html" class="back-link">← サイトトップへ戻る</a>
+    </div>
+  </div>
 
-  <!-- 商品登録フォーム -->
-  <form id="admin-product-form" onsubmit="handleProductSubmit(event)">
-    <div class="form-group">
-      <label for="p-name">商品名</label>
-      <input type="text" id="p-name" required>
+  <!-- 管理ダッシュボード画面（初期は非表示） -->
+  <div id="admin-view" class="admin-wrapper" style="display: none;">
+    <div class="admin-header">
+      <h1>花ネット — 商品管理ダッシュボード</h1>
+      <div>
+        <a href="index.html" class="back-link" style="margin-right: 15px;">🌐 サイトを確認</a>
+        <a href="#" class="back-link" onclick="handleLogout()">ログアウト</a>
+      </div>
     </div>
-    <div class="form-group">
-      <label for="p-price">価格 (円)</label>
-      <input type="number" id="p-price" required>
+
+    <div class="top-action-bar">
+      <span>登録されている商品の一覧・編集・削除が行えます。</span>
+      <button class="btn-add" onclick="openProductModal()">＋ 新規商品を追加</button>
     </div>
-    <div class="form-group">
-      <label for="p-category">カテゴリ (例: cut, pot など)</label>
-      <input type="text" id="p-category" required>
+
+    <table class="product-admin-table">
+      <thead>
+        <tr>
+          <th>商品画像 / 名称</th>
+          <th>カテゴリ</th>
+          <th>価格</th>
+          <th>在庫</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="admin-product-list">
+        <!-- JavaScriptで動的生成 -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 編集・追加用モーダル -->
+<div id="product-modal" class="modal-overlay">
+  <div class="modal-content">
+    <h3 id="modal-title" style="margin-top:0; color:#5b793f;">商品編集</h3>
+    <input type="hidden" id="edit-id">
+    <div class="field">
+      <label>商品名</label>
+      <input type="text" id="p-name">
     </div>
-    <div class="form-group">
-      <label for="p-image">画像URL</label>
-      <input type="text" id="p-image">
+    <div class="row">
+      <div class="field">
+        <label>価格（税込・円）</label>
+        <input type="number" id="p-price">
+      </div>
+      <div class="field">
+        <label>カテゴリ (例: cut, pot, rose 等)</label>
+        <input type="text" id="p-category">
+      </div>
     </div>
-    <div class="form-group">
-      <label for="p-desc">商品説明</label>
+    <div class="row">
+      <div class="field">
+        <label>在庫数</label>
+        <input type="number" id="p-stock" value="10">
+      </div>
+      <div class="field">
+        <label>色・カラー</label>
+        <input type="text" id="p-color" value="おまかせ">
+      </div>
+    </div>
+    <div class="field">
+      <label>商品画像URL</label>
+      <input type="url" id="p-image" placeholder="https://images.unsplash.com/...">
+    </div>
+    <div class="field">
+      <label>商品説明</label>
       <textarea id="p-desc" rows="3"></textarea>
     </div>
-    <button type="submit">商品を登録する</button>
-  </form>
+    <div class="field">
+      <label>配送温度帯</label>
+      <select id="p-shipping">
+        <option value="常温">常温</option>
+        <option value="クール便">クール便</option>
+      </select>
+    </div>
+    <div class="check-wrap">
+      <input type="checkbox" id="p-sale">
+      <label for="p-sale" style="display:inline; margin:0; cursor:pointer;">特価品（セール）として扱う</label>
+    </div>
+    <div class="field">
+      <label>通常価格（特価時の打消し線用）</label>
+      <input type="number" id="p-oldprice" value="0">
+    </div>
 
-  <!-- 登録済み商品一覧 -->
-  <h2>登録済み商品一覧</h2>
-  <table class="product-list-table">
-    <thead>
-      <tr>
-        <th>商品名</th>
-        <th>価格</th>
-        <th>カテゴリ</th>
-        <th>操作</th>
-      </tr>
-    </thead>
-    <tbody id="admin-product-list">
-      <!-- JavaScriptで動的に挿入されます -->
-    </tbody>
-  </table>
+    <div style="display: flex; gap: 10px; margin-top: 20px;">
+      <button class="btn-main" onclick="saveProductData()">保存する</button>
+      <button class="btn-main btn-del" onclick="closeProductModal()" style="background:#ddd; color:#333;">キャンセル</button>
+    </div>
+  </div>
 </div>
 
 <script>
-  // 管理画面用の商品一覧取得＆表示
-  async function fetchAdminProducts() {
-    try {
-      const res = await fetch('/api/products');
-      const products = await res.json();
-      const tbody = document.getElementById('admin-product-list');
-      tbody.innerHTML = '';
+// デフォルト商品データ（index.htmlと同期させるための初期値）
+const defaultProducts = [
+  {id:1, name:"ピンポン菊", price:160, category:"cut", desc:"切花奉仕品・ロット数限定価格", stock:50, color:"ホワイト", shipping:"常温", sale:true, oldPrice:200, image:"https://images.unsplash.com/photo-1563241527-3004b7be0ffd?auto=format&fit=crop&w=500&q=80"},
+  {id:2, name:"ガーベラ", price:100, category:"cut", desc:"切花特価品", stock:100, color:"ピンク", shipping:"常温", sale:false, oldPrice:0, image:"https://images.unsplash.com/photo-1523438885200-e635ba2c371e?auto=format&fit=crop&w=500&q=80"},
+  {id:3, name:"アンスリューム", price:3500, category:"pot", desc:"鉢・苗・観葉植物 得価品", stock:15, color:"レッド", shipping:"常温", sale:false, oldPrice:0, image:"https://images.unsplash.com/photo-1499002238440-d264edd596ec?auto=format&fit=crop&w=500&q=80"},
+  {id:4, name:"赤バラの花束", price:4500, category:"rose", desc:"新鮮な国産赤バラを束ねました。", stock:20, color:"レッド", shipping:"常温", sale:false, oldPrice:0, image:"https://images.unsplash.com/photo-1496062031456-07b8f162a322?auto=format&fit=crop&w=500&q=80"}
+];
 
-      if (!Array.isArray(products)) return;
+let products = JSON.parse(localStorage.getItem('fg_products') || 'null') || defaultProducts;
 
-      products.forEach(p => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${p.name}</td>
-          <td>¥${Number(p.price).toLocaleString()}</td>
-          <td>${p.category || ''}</td>
-          <td><button class="btn-delete" onclick="deleteAdminProduct('${p.id}')">削除</button></td>
-        `;
-        tbody.appendChild(tr);
-      });
-    } catch (err) {
-      console.error('商品データの取得に失敗しました:', err);
-    }
+// ログイン処理
+function handleLogin() {
+  const id = document.getElementById('login-id').value;
+  const pass = document.getElementById('login-pass').value;
+  if(id === 'admin' && pass === 'flower2026') {
+    document.getElementById('login-view').style.display = 'none';
+    document.getElementById('admin-view').style.display = 'block';
+    renderAdminProducts();
+  } else {
+    document.getElementById('login-error').textContent = 'IDまたはパスワードが正しくありません。';
+  }
+}
+
+function handleLogout() {
+  document.getElementById('admin-view').style.display = 'none';
+  document.getElementById('login-view').style.display = 'block';
+  document.getElementById('login-pass').value = '';
+}
+
+// 管理画面の商品一覧描画
+function renderAdminProducts() {
+  const tbody = document.getElementById('admin-product-list');
+  tbody.innerHTML = '';
+  
+  if(products.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#999; padding:20px;">登録されている商品はありません</td></tr>`;
+    return;
   }
 
-  // 商品追加処理
-  async function handleProductSubmit(e) {
-    e.preventDefault();
-    const name = document.getElementById('p-name').value;
-    const price = document.getElementById('p-price').value;
-    const category = document.getElementById('p-category').value;
-    const image = document.getElementById('p-image').value;
-    const description = document.getElementById('p-desc').value;
+  products.forEach(p => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><img src="${p.image || ''}" onerror="this.src='https://via.placeholder.com/40'">${p.name}</td>
+      <td>${p.category}</td>
+      <td>¥${Number(p.price).toLocaleString()}</td>
+      <td>${p.stock}</td>
+      <td>
+        <button class="btn-sm" onclick="openProductModal(${p.id})">編集</button>
+        <button class="btn-sm btn-del" onclick="deleteProduct(${p.id})">削除</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
 
-    try {
-      const res = await fetch('/api/products', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, price, category, image, description })
-      });
-      const result = await res.json();
+// モーダルを開く（新規 or 編集）
+function openProductModal(id = null) {
+  document.getElementById('product-modal').classList.add('open');
+  if(id) {
+    document.getElementById('modal-title').textContent = '商品を編集';
+    const p = products.find(x => x.id === id);
+    document.getElementById('edit-id').value = p.id;
+    document.getElementById('p-name').value = p.name;
+    document.getElementById('p-price').value = p.price;
+    document.getElementById('p-category').value = p.category;
+    document.getElementById('p-stock').value = p.stock;
+    document.getElementById('p-color').value = p.color || '';
+    document.getElementById('p-image').value = p.image || '';
+    document.getElementById('p-desc').value = p.desc || '';
+    document.getElementById('p-shipping').value = p.shipping || '常温';
+    document.getElementById('p-sale').checked = !!p.sale;
+    document.getElementById('p-oldprice').value = p.oldPrice || 0;
+  } else {
+    document.getElementById('modal-title').textContent = '新規商品を追加';
+    document.getElementById('edit-id').value = '';
+    document.getElementById('p-name').value = '';
+    document.getElementById('p-price').value = '';
+    document.getElementById('p-category').value = 'cut';
+    document.getElementById('p-stock').value = '10';
+    document.getElementById('p-color').value = 'おまかせ';
+    document.getElementById('p-image').value = '';
+    document.getElementById('p-desc').value = '';
+    document.getElementById('p-shipping').value = '常温';
+    document.getElementById('p-sale').checked = false;
+    document.getElementById('p-oldprice').value = '0';
+  }
+}
 
-      if (result.success) {
-        alert('商品を追加しました！');
-        document.getElementById('admin-product-form').reset();
-        fetchAdminProducts();
-      } else {
-        alert('エラー: ' + result.error);
-      }
-    } catch (err) {
-      console.error('登録失敗:', err);
-    }
+function closeProductModal() {
+  document.getElementById('product-modal').classList.remove('open');
+}
+
+// 保存処理
+function saveProductData() {
+  const id = document.getElementById('edit-id').value;
+  const name = document.getElementById('p-name').value.trim();
+  const price = Number(document.getElementById('p-price').value);
+  const category = document.getElementById('p-category').value.trim();
+  
+  if(!name || !price || !category) {
+    alert('「商品名」「価格」「カテゴリ」は必須です。');
+    return;
   }
 
-  // 商品削除処理
-  async function deleteAdminProduct(id) {
-    if (!confirm('本当にこの商品を削除しますか？')) return;
+  const newData = {
+    id: id ? Number(id) : Date.now(),
+    name: name,
+    price: price,
+    category: category,
+    stock: Number(document.getElementById('p-stock').value),
+    color: document.getElementById('p-color').value,
+    image: document.getElementById('p-image').value,
+    desc: document.getElementById('p-desc').value,
+    shipping: document.getElementById('p-shipping').value,
+    sale: document.getElementById('p-sale').checked,
+    oldPrice: Number(document.getElementById('p-oldprice').value)
+  };
 
-    try {
-      const res = await fetch('/api/products', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id })
-      });
-      const result = await res.json();
-
-      if (result.success) {
-        alert('商品を削除しました');
-        fetchAdminProducts();
-      } else {
-        alert('エラー: ' + result.error);
-      }
-    } catch (err) {
-      console.error('削除失敗:', err);
-    }
+  if(id) {
+    const idx = products.findIndex(x => x.id === Number(id));
+    if(idx !== -1) products[idx] = newData;
+  } else {
+    products.unshift(newData);
   }
 
-  // ページ読み込み時に一覧を取得
-  window.addEventListener('DOMContentLoaded', fetchAdminProducts);
+  localStorage.setItem('fg_products', JSON.stringify(products));
+  closeProductModal();
+  renderAdminProducts();
+  alert('商品を保存しました！');
+}
+
+// 削除処理
+function deleteProduct(id) {
+  if(confirm('本当にこの商品を削除しますか？')) {
+    products = products.filter(x => x.id !== id);
+    localStorage.setItem('fg_products', JSON.stringify(products));
+    renderAdminProducts();
+  }
+}
 </script>
 </body>
 </html>
