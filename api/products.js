@@ -1,9 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.POSTGRES_URL || process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
-);
+const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.POSTGRES_URL;
+const supabaseKey = process.env.SUPABASE_ANON_KEY;
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default async function handler(req, res) {
   const method = req.method;
@@ -50,6 +50,7 @@ export default async function handler(req, res) {
     res.setHeader('Allow', ['GET', 'POST', 'DELETE']);
     res.status(405).end(`Method ${method} Not Allowed`);
   } catch (error) {
+    console.error("Supabase API Error:", error.message);
     res.status(500).json({ error: error.message });
   }
 }
