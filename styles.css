@@ -37,3 +37,14 @@
   font-size: 12px;
   color: #655b54;
 }
+
+/* 商品画像およびサムネイルが枠内に引き伸ばし・フィットして表示されるスタイル */
+.product-row img, 
+#mp-dynamic-area img, 
+.cart-line img {
+  width: 70px;
+  height: 70px;
+  object-fit: cover; /* 枠いっぱいに引き伸ばし・中央フィットさせる */
+  border-radius: 4px;
+  flex-shrink: 0;
+}
