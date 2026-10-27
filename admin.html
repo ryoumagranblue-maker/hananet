@@ -26,7 +26,9 @@
   .product-admin-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12px; }
   .product-admin-table th, .product-admin-table td { border: 1px solid #e3e8d9; padding: 8px 10px; text-align: left; vertical-align: middle; }
   .product-admin-table th { background: #f3f7eb; color: #4d7435; font-weight: bold; }
-  .product-admin-table td img { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; vertical-align: middle; margin-right: 8px; background: #f8f3ee; }
+  
+  /* 画像の引き伸ばし・フィット表示 */
+  .product-admin-table td img { width: 45px; height: 45px; object-fit: cover; border-radius: 4px; vertical-align: middle; margin-right: 8px; background: #f8f3ee; flex-shrink: 0; }
   
   .btn-sm { padding: 4px 10px; font-size: 11px; border: 1px solid #d96b91; background: #fff0f4; color: #b84c73; border-radius: 3px; cursor: pointer; margin-right: 4px; }
   .btn-sm:hover { background: #d96b91; color: white; }
@@ -113,26 +115,26 @@
         <input type="number" id="p-price">
       </div>
       <div class="field" style="margin-bottom:12px;">
-  <label style="display:block; font-size:12px; font-weight:bold; margin-bottom:4px;">カテゴリ（分類）</label>
-  <select id="product-category" style="width:100%; padding:7px; border:1px solid #ccc; border-radius:4px; box-sizing:border-box;">
-    <optgroup label="業者様ご用達！特価品">
-      <option value="preserved">プリザーブドフラワー大特価！</option>
-      <option value="cut">切り花・花材・葉物・枝物</option>
-      <option value="pot">鉢花・鉢植え</option>
-      <option value="seedling">花苗・野菜苗</option>
-      <option value="green">観葉植物</option>
-      <option value="grave">仏花・墓花</option>
-      <option value="orchid">胡蝶蘭</option>
-      <option value="garden">園芸用品</option>
-    </optgroup>
-    <optgroup label="フラワーギフト商品">
-      <option value="rose">バラの花束</option>
-      <option value="celebration">お祝い用花束</option>
-      <option value="arrangement">アレンジメント・花かご</option>
-      <option value="condolence">お供え・弔事</option>
-    </optgroup>
-  </select>
-</div>
+        <label style="display:block; font-size:12px; font-weight:bold; margin-bottom:4px;">カテゴリ（分類）</label>
+        <select id="p-category" style="width:100%; padding:7px; border:1px solid #ccc; border-radius:4px; box-sizing:border-box;">
+          <optgroup label="業者様ご用達！特価品">
+            <option value="preserved">プリザーブドフラワー大特価！</option>
+            <option value="cut">切り花・花材・葉物・枝物</option>
+            <option value="pot">鉢花・鉢植え</option>
+            <option value="seedling">花苗・野菜苗</option>
+            <option value="green">観葉植物</option>
+            <option value="grave">仏花・墓花</option>
+            <option value="orchid">胡蝶蘭</option>
+            <option value="garden">園芸用品</option>
+          </optgroup>
+          <optgroup label="フラワーギフト商品">
+            <option value="rose">バラの花束</option>
+            <option value="celebration">お祝い用花束</option>
+            <option value="arrangement">アレンジメント・花かご</option>
+            <option value="condolence">お供え・弔事</option>
+          </optgroup>
+        </select>
+      </div>
     </div>
     <div class="row">
       <div class="field">
@@ -144,11 +146,14 @@
         <input type="text" id="p-color" value="おまかせ">
       </div>
     </div>
+    
+    <!-- ファイル添付用画像フィールド -->
     <div class="field" style="margin-bottom:12px;">
-  <label style="display:block; font-size:12px; font-weight:bold; margin-bottom:4px;">商品画像（ファイル添付）</label>
-  <input type="file" id="product-image-file" accept="image/*" style="width:100%; padding:5px; border:1px solid #ccc; border-radius:4px; box-sizing:border-box; font-size:12px;">
-  <div id="image-preview-container" style="margin-top:5px; font-size:11px; color:#666;"></div>
-</div>
+      <label style="display:block; font-size:12px; font-weight:bold; margin-bottom:4px;">商品画像（ファイル添付）</label>
+      <input type="file" id="product-image-file" accept="image/*" style="width:100%; padding:5px; border:1px solid #ccc; border-radius:4px; box-sizing:border-box; font-size:12px;">
+      <div id="image-preview-container" style="margin-top:5px; font-size:11px; color:#666;"></div>
+    </div>
+
     <div class="field">
       <label>商品説明</label>
       <textarea id="p-desc" rows="3"></textarea>
@@ -169,22 +174,37 @@
 </div>
 
 <script>
-// 花ネットの全初期商品データ（再現デモの全件）
 const defaultProducts = [
-  {id:1, name:"奉仕品ピンポン菊 1ロット10本 白", price:1600, category:"cut", desc:"奉仕価格での販売は1回の発送につき1ロットまで。70cm程度。", stock:20, color:"白", shipping:"常温", image:"https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
-  {id:2, name:"奉仕品ピンポン菊 1ロット10本 黄色", price:1600, category:"cut", desc:"奉仕価格での販売は1回の発送につき1ロットまで。70cm程度。", stock:20, color:"黄色", shipping:"常温", image:"https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
-  {id:3, name:"特価品ガーベラ 1ロット20本 色おまかせ", price:2000, category:"cut", desc:"色おまかせ。1ロット20本。", stock:15, color:"おまかせ", shipping:"常温", image:"https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
-  {id:4, name:"特価品ガーベラ 1ロット10本", price:1000, category:"cut", desc:"色を選ぶ切り花特価品。1ロット10本。", stock:30, color:"白・黄・ピンク・オレンジ・赤", shipping:"常温", image:"https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
-  {id:5, name:"スプレーカーネーション 1ロット25本", price:5000, category:"cut", desc:"長さ50cm程度。色・希望日はお問い合わせください。", stock:12, color:"赤・ピンク・黄・オレンジ・赤", shipping:"常温", image:"https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
-  {id:6, name:"カーネーション 1ロット50本 色おまかせMix", price:9500, category:"cut", desc:"切り花まとめ買い向け商品。", stock:10, color:"色おまかせMix", shipping:"常温", image:"https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
-  {id:7, name:"カーネーション 1ロット25本", price:5000, category:"cut", desc:"色を選べる切り花。", stock:15, color:"ピンク・黄色・赤", shipping:"常温", image:"https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
-  {id:8, name:"バラ 1ロット20本", price:3900, category:"rose", desc:"複数色から選べるバラ。", stock:15, color:"ピンク・黄色・オレンジ・赤", shipping:"常温", image:"https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
-  {id:9, name:"アンスリューム", price:3500, category:"pot", desc:"2023年9月29日新春の導入詳細に基づく。", stock:8, color:"赤・色各色", shipping:"常温", image:"https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
-  {id:10, name:"胡蝶蘭", price:8800, category:"orchid", desc:"HANTENサイトの商品カテゴリを参考にしたデモ商品。価格は仮設定。", stock:5, color:"白など", shipping:"常温", image:"https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
-  {id:11, name:"観葉植物", price:2800, category:"green", desc:"HANTENサイトの商品カテゴリを参考にしたデモ商品。価格は仮設定。", stock:6, color:"商品による", shipping:"常温", image:"https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
-  {id:12, name:"お供え・弔事アレンジ", price:3500, category:"condolence", desc:"HANTENサイトの商品カテゴリを参考にしたデモ商品。価格は仮設定。", stock:8, color:"白・淡色系", shipping:"常温", image:"https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"}
+  {id:1, name:"奉仕品ピンポン菊 1ロット10本 白", price:1600, category:"cut", categoryName:"切り花・花材・葉物・枝物", desc:"奉仕価格での販売は1回の発送につき1ロットまで。70cm程度。", stock:20, color:"白", shipping:"常温", image:"https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
+  {id:2, name:"奉仕品ピンポン菊 1ロット10本 黄色", price:1600, category:"cut", categoryName:"切り花・花材・葉物・枝物", desc:"奉仕価格での販売は1回の発送につき1ロットまで。70cm程度。", stock:20, color:"黄色", shipping:"常温", image:"https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
+  {id:3, name:"特価品ガーベラ 1ロット20本 色おまかせ", price:2000, category:"cut", categoryName:"切り花・花材・葉物・枝物", desc:"色おまかせ。1ロット20本。", stock:15, color:"おまかせ", shipping:"常温", image:"https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
+  {id:4, name:"特価品ガーベラ 1ロット10本", price:1000, category:"cut", categoryName:"切り花・花材・葉物・枝物", desc:"色を選ぶ切り花特価品。1ロット10本。", stock:30, color:"白・黄・ピンク・オレンジ・赤", shipping:"常温", image:"https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
+  {id:5, name:"スプレーカーネーション 1ロット25本", price:5000, category:"cut", categoryName:"切り花・花材・葉物・枝物", desc:"長さ50cm程度。色・希望日はお問い合わせください。", stock:12, color:"赤・ピンク・黄・オレンジ・赤", shipping:"常温", image:"https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
+  {id:6, name:"カーネーション 1ロット50本 色おまかせMix", price:9500, category:"cut", categoryName:"切り花・花材・葉物・枝物", desc:"切り花まとめ買い向け商品。", stock:10, color:"色おまかせMix", shipping:"常温", image:"https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
+  {id:7, name:"カーネーション 1ロット25本", price:5000, category:"cut", categoryName:"切り花・花材・葉物・枝物", desc:"色を選べる切り花。", stock:15, color:"ピンク・黄色・赤", shipping:"常温", image:"https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
+  {id:8, name:"バラ 1ロット20本", price:3900, category:"rose", categoryName:"バラの花束", desc:"複数色から選べるバラ。", stock:15, color:"ピンク・黄色・オレンジ・赤", shipping:"常温", image:"https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
+  {id:9, name:"アンスリューム", price:3500, category:"pot", categoryName: "鉢花・鉢植え", desc:"2023年9月29日新春の導入詳細に基づく。", stock:8, color:"赤・色各色", shipping:"常温", image:"https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
+  {id:10, name:"胡蝶蘭", price:8800, category:"orchid", categoryName: "胡蝶蘭", desc:"HANTENサイトの商品カテゴリを参考にしたデモ商品。", stock:5, color:"白など", shipping:"常温", image:"https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
+  {id:11, name:"観葉植物", price:2800, category:"green", categoryName: "観葉植物", desc:"HANTENサイトの商品カテゴリを参考にしたデモ商品。", stock:6, color:"商品による", shipping:"常温", image:"https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
+  {id:12, name:"お供え・弔事アレンジ", price:3500, category:"condolence", categoryName: "お供え・弔事", desc:"HANTENサイトの商品カテゴリを参考にしたデモ商品。", stock:8, color:"白・淡色系", shipping:"常温", image:"https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"}
 ];
+
 let products = JSON.parse(localStorage.getItem('hananet_products') || 'null') || defaultProducts;
+let currentImageBase64 = ""; // アップロードされた画像を一時保存する変数
+
+// ファイル選択時のプレビューおよびBase64変換処理
+document.getElementById('product-image-file').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(uploadEvent) {
+      currentImageBase64 = uploadEvent.target.result;
+      const preview = document.getElementById('image-preview-container');
+      preview.innerHTML = `<img src="${currentImageBase64}" style="width:50px; height:50px; object-fit:cover; border-radius:3px; margin-top:4px;" alt="プレビュー">`;
+    };
+    reader.readAsDataURL(file);
+  }
+});
 
 function handleLogin() {
   const id = document.getElementById('login-id').value;
@@ -216,8 +236,8 @@ function renderAdminProducts() {
   products.forEach(p => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td><img src="${p.image || ''}" onerror="this.src='https://via.placeholder.com/40'">${p.name}</td>
-      <td>${p.category}</td>
+      <td><img src="${p.image || ''}" style="width:45px; height:45px; object-fit:cover; border-radius:4px;" onerror="this.src='https://via.placeholder.com/45'">${p.name}</td>
+      <td>${p.categoryName || p.category}</td>
       <td>¥${Number(p.price).toLocaleString()}</td>
       <td>${p.stock}</td>
       <td>
@@ -231,6 +251,10 @@ function renderAdminProducts() {
 
 function openProductModal(id = null) {
   document.getElementById('product-modal').classList.add('open');
+  currentImageBase64 = ""; // 初期化
+  document.getElementById('product-image-file').value = "";
+  document.getElementById('image-preview-container').innerHTML = "";
+
   if(id) {
     document.getElementById('modal-title').textContent = '商品を編集';
     const p = products.find(x => x.id === id);
@@ -240,9 +264,13 @@ function openProductModal(id = null) {
     document.getElementById('p-category').value = p.category;
     document.getElementById('p-stock').value = p.stock;
     document.getElementById('p-color').value = p.color || '';
-    document.getElementById('p-image').value = p.image || '';
     document.getElementById('p-desc').value = p.desc || '';
     document.getElementById('p-shipping').value = p.shipping || '常温';
+    
+    currentImageBase64 = p.image || "";
+    if (currentImageBase64) {
+      document.getElementById('image-preview-container').innerHTML = `<img src="${currentImageBase64}" style="width:50px; height:50px; object-fit:cover; border-radius:3px; margin-top:4px;" alt="現在画像">`;
+    }
   } else {
     document.getElementById('modal-title').textContent = '新規商品を追加';
     document.getElementById('edit-id').value = '';
@@ -251,7 +279,6 @@ function openProductModal(id = null) {
     document.getElementById('p-category').value = 'cut';
     document.getElementById('p-stock').value = '20';
     document.getElementById('p-color').value = 'おまかせ';
-    document.getElementById('p-image').value = '';
     document.getElementById('p-desc').value = '';
     document.getElementById('p-shipping').value = '常温';
   }
@@ -265,21 +292,32 @@ function saveProductData() {
   const id = document.getElementById('edit-id').value;
   const name = document.getElementById('p-name').value.trim();
   const price = Number(document.getElementById('p-price').value);
-  const category = document.getElementById('p-category').value.trim();
+  const categorySelect = document.getElementById('p-category');
+  const category = categorySelect.value;
+  const categoryName = categorySelect.options[categorySelect.selectedIndex].text;
   
   if(!name || !price || !category) {
     alert('「商品名」「価格」「カテゴリ」は必須です。');
     return;
   }
 
+  // 既存商品の画像を引き継ぐ、または新しくアップロードされた画像を使用
+  let existingImage = "";
+  if(id) {
+    const existing = products.find(x => x.id === Number(id));
+    if(existing) existingImage = existing.image;
+  }
+  const finalImage = currentImageBase64 || existingImage;
+
   const newData = {
     id: id ? Number(id) : Date.now(),
     name: name,
     price: price,
     category: category,
+    categoryName: categoryName,
     stock: Number(document.getElementById('p-stock').value),
     color: document.getElementById('p-color').value,
-    image: document.getElementById('p-image').value,
+    image: finalImage,
     desc: document.getElementById('p-desc').value,
     shipping: document.getElementById('p-shipping').value
   };
