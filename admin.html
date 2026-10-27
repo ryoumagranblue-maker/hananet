@@ -190,26 +190,42 @@ const defaultProducts = [
 ];
 
 let products = JSON.parse(localStorage.getItem('hananet_products') || 'null') || defaultProducts;
-let currentImageBase64 = ""; // アップロードされた画像を一時保存する変数
+let currentImageBase64 = "";
 
-// ファイル選択時のプレビューおよびBase64変換処理
-document.getElementById('product-image-file').addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = function(uploadEvent) {
-      currentImageBase64 = uploadEvent.target.result;
-      const preview = document.getElementById('image-preview-container');
-      preview.innerHTML = `<img src="${currentImageBase64}" style="width:50px; height:50px; object-fit:cover; border-radius:3px; margin-top:4px;" alt="プレビュー">`;
-    };
-    reader.readAsDataURL(file);
+// ページ読み込み時にセッションストレージをチェックし、ログイン中ならダッシュボードを表示
+document.addEventListener("DOMContentLoaded", () => {
+  if (sessionStorage.getItem('hananet_admin_logged_in') === 'true') {
+    document.getElementById('login-view').style.display = 'none';
+    document.getElementById('admin-view').style.display = 'block';
+    renderAdminProducts();
   }
 });
+
+// ファイル選択時のプレビューおよびBase64変換処理
+const fileInput = document.getElementById('product-image-file');
+if (fileInput) {
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(uploadEvent) {
+        currentImageBase64 = uploadEvent.target.result;
+        const preview = document.getElementById('image-preview-container');
+        if (preview) {
+          preview.innerHTML = `<img src="${currentImageBase64}" style="width:50px; height:50px; object-fit:cover; border-radius:3px; margin-top:4px;" alt="プレビュー">`;
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+}
 
 function handleLogin() {
   const id = document.getElementById('login-id').value;
   const pass = document.getElementById('login-pass').value;
   if(id === 'admin' && pass === 'flower2026') {
+    // ブラウザを閉じると消える sessionStorage にログイン状態を保持
+    sessionStorage.setItem('hananet_admin_logged_in', 'true');
     document.getElementById('login-view').style.display = 'none';
     document.getElementById('admin-view').style.display = 'block';
     renderAdminProducts();
@@ -219,6 +235,7 @@ function handleLogin() {
 }
 
 function handleLogout() {
+  sessionStorage.removeItem('hananet_admin_logged_in');
   document.getElementById('admin-view').style.display = 'none';
   document.getElementById('login-view').style.display = 'block';
   document.getElementById('login-pass').value = '';
@@ -226,6 +243,7 @@ function handleLogout() {
 
 function renderAdminProducts() {
   const tbody = document.getElementById('admin-product-list');
+  if (!tbody) return;
   tbody.innerHTML = '';
   
   if(products.length === 0) {
@@ -251,7 +269,7 @@ function renderAdminProducts() {
 
 function openProductModal(id = null) {
   document.getElementById('product-modal').classList.add('open');
-  currentImageBase64 = ""; // 初期化
+  currentImageBase64 = "";
   document.getElementById('product-image-file').value = "";
   document.getElementById('image-preview-container').innerHTML = "";
 
@@ -301,7 +319,6 @@ function saveProductData() {
     return;
   }
 
-  // 既存商品の画像を引き継ぐ、または新しくアップロードされた画像を使用
   let existingImage = "";
   if(id) {
     const existing = products.find(x => x.id === Number(id));
