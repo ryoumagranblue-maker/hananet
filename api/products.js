@@ -1,7 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.POSTGRES_URL;
-const supabaseKey = process.env.SUPABASE_ANON_KEY;
+// 環境変数ではなく、直接SupabaseのURLとANON_KEYを貼り付ける場合
+const supabaseUrl = 'YOUR_SUPABASE_URL'; 
+const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
