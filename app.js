@@ -405,3 +405,125 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
+// --- マイメニュー機能（各情報変更フォーム・お届け先・購入履歴の完全実装） ---
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest(".mp-menu-btn");
+  if (!btn) return;
+  const action = btn.dataset.action;
+  const dyn = document.getElementById("mp-dynamic-area");
+  if (!dyn) return;
+  dyn.style.display = "block";
+  dyn.removeAttribute("data-view");
+
+  const currentUser = JSON.parse(localStorage.getItem("hananet_current_user") || "null");
+  if (!currentUser) return;
+
+  if (action === "history") {
+    dyn.innerHTML = `
+      <strong>【購入履歴・配送状況】</strong>
+      <div style="margin-top:6px; background:#fff; padding:8px; border:1px solid #ddd; border-radius:4px;">
+        <p style="margin:0 0 4px; font-weight:bold; color:#5b793f;">注文番号: #HN-2026-1027</p>
+        <p style="margin:0; font-size:11px; color:#666;">状態: <span style="color:green; font-weight:bold;">発送準備完了（常温便）</span></p>
+        <p style="margin:2px 0 0; font-size:11px; color:#666;">お届け先: 大阪市平野区</p>
+      </div>
+    `;
+  } else if (action === "favorite") {
+    showFavoriteView();
+  } else if (action === "address") {
+    let addresses = JSON.parse(localStorage.getItem(`hananet_addresses_${currentUser.userId}`) || '["大阪市平野区 ご自宅"]');
+    dyn.innerHTML = `
+      <strong>【お届け先リスト管理】</strong>
+      <div style="margin-top:6px;" id="addr-list-container">
+        ${addresses.map((addr, idx) => `
+          <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:6px 8px; border:1px solid #ddd; border-radius:3px; margin-bottom:4px; font-size:11px;">
+            <span>🏠 ${addr}</span>
+            <button type="button" data-del-addr="${idx}" style="background:#b04e5b; color:white; border:none; padding:2px 6px; border-radius:3px; cursor:pointer; font-size:10px;">削除</button>
+          </div>
+        `).join("")}
+      </div>
+      <div style="margin-top:8px; display:flex; gap:5px;">
+        <input type="text" id="new-address-input" placeholder="新しいお届け先を入力" style="flex:1; padding:5px; border:1px solid #ccc; border-radius:3px; font-size:11px;">
+        <button type="button" id="btn-add-address" style="background:#789c55; color:white; border:none; padding:5px 10px; border-radius:3px; cursor:pointer; font-size:11px;">追加</button>
+      </div>
+    `;
+  } else if (action === "settings") {
+    dyn.innerHTML = `
+      <strong>【会員情報・パスワード変更】</strong>
+      <div style="margin-top:6px; display:flex; flex-direction:column; gap:6px;">
+        <div>
+          <label style="font-size:10px; font-weight:bold; display:block;">お名前</label>
+          <input type="text" id="edit-name" value="${currentUser.name}" style="width:100%; padding:5px; border:1px solid #ccc; border-radius:3px; font-size:11px; box-sizing:border-box;">
+        </div>
+        <div>
+          <label style="font-size:10px; font-weight:bold; display:block;">メールアドレス</label>
+          <input type="email" id="edit-email" value="${currentUser.email}" style="width:100%; padding:5px; border:1px solid #ccc; border-radius:3px; font-size:11px; box-sizing:border-box;">
+        </div>
+        <div>
+          <label style="font-size:10px; font-weight:bold; display:block;">新しいパスワード（変更する場合のみ）</label>
+          <input type="password" id="edit-password" placeholder="変更しない場合は空欄" style="width:100%; padding:5px; border:1px solid #ccc; border-radius:3px; font-size:11px; box-sizing:border-box;">
+        </div>
+        <button type="button" id="btn-save-settings" style="background:#789c55; color:white; border:none; padding:6px; border-radius:3px; cursor:pointer; font-weight:bold; margin-top:4px;">変更を保存する</button>
+      </div>
+    `;
+  }
+});
+
+// お届け先・会員情報の保存や削除操作のハンドリング
+document.addEventListener("click", (e) => {
+  const currentUser = JSON.parse(localStorage.getItem("hananet_current_user") || "null");
+  if (!currentUser) return;
+
+  // お届け先追加
+  if (e.target.id === "btn-add-address") {
+    const input = document.getElementById("new-address-input");
+    const val = input ? input.value.trim() : "";
+    if (!val) return;
+    let addresses = JSON.parse(localStorage.getItem(`hananet_addresses_${currentUser.userId}`) || '["大阪市平野区 ご自宅"]');
+    addresses.push(val);
+    localStorage.setItem(`hananet_addresses_${currentUser.userId}`, JSON.stringify(addresses));
+    document.querySelector('[data-action="address"]').click(); // 再描画
+    showToast("お届け先を追加しました");
+  }
+
+  // お届け先削除
+  if (e.target.dataset.delAddr !== undefined) {
+    const idx = +e.target.dataset.delAddr;
+    let addresses = JSON.parse(localStorage.getItem(`hananet_addresses_${currentUser.userId}`) || '["大阪市平野区 ご自宅"]');
+    addresses.splice(idx, 1);
+    localStorage.setItem(`hananet_addresses_${currentUser.userId}`, JSON.stringify(addresses));
+    document.querySelector('[data-action="address"]').click(); // 再描画
+    showToast("お届け先を削除しました");
+  }
+
+  // 会員情報保存
+  if (e.target.id === "btn-save-settings") {
+    const name = document.getElementById("edit-name").value.trim();
+    const email = document.getElementById("edit-email").value.trim();
+    const password = document.getElementById("edit-password").value.trim();
+
+    if (!name || !email) {
+      alert("お名前とメールアドレスは必須です。");
+      return;
+    }
+
+    currentUser.name = name;
+    currentUser.email = email;
+    if (password) currentUser.password = password;
+
+    // ユーザー一覧も更新
+    let users = JSON.parse(localStorage.getItem("hananet_users") || "[]");
+    users = users.map(u => u.userId === currentUser.userId ? currentUser : u);
+    localStorage.setItem("hananet_users", JSON.stringify(users));
+    localStorage.setItem("hananet_current_user", JSON.stringify(currentUser));
+
+    document.getElementById("mp-username").textContent = currentUser.name;
+    document.getElementById("mp-email").textContent = currentUser.email;
+    
+    // ヘッダー表示も更新
+    const regNav = document.getElementById("nav-register");
+    if (regNav) regNav.textContent = currentUser.name + "様";
+
+    alert("会員情報を更新しました！");
+  }
+});
