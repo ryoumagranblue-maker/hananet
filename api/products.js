@@ -18,21 +18,42 @@ export default async function handler(req, res) {
 
     // 2. 商品の追加・更新 (POST)
     if (method === 'POST') {
-      const { id, name, price, category, image, description } = req.body;
+      const { id, name, price, category, categoryName, image, description, stock, color, shipping } = req.body;
       
       let result;
       if (id) {
         // 更新
         result = await supabase
           .from('products')
-          .update({ name, price: Number(price), category, image, description })
+          .update({ 
+            name, 
+            price: Number(price), 
+            category, 
+            categoryName: categoryName || category,
+            image, 
+            description, 
+            stock: Number(stock) || 0, 
+            color, 
+            shipping 
+          })
           .eq('id', id);
       } else {
         // 新規追加
         const newId = Date.now();
         result = await supabase
           .from('products')
-          .insert([{ id: newId, name, price: Number(price), category, image, description }]);
+          .insert([{ 
+            id: newId, 
+            name, 
+            price: Number(price), 
+            category, 
+            categoryName: categoryName || category,
+            image, 
+            description, 
+            stock: Number(stock) || 0, 
+            color, 
+            shipping 
+          }]);
       }
 
       if (result.error) throw result.error;
