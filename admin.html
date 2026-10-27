@@ -1,1 +1,155 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>商品管理ダッシュボード - 花ネット</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  body { font-family: sans-serif; background: #f4f6f9; margin: 0; padding: 20px; }
+  .admin-container { max-width: 900px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+  h1 { font-size: 24px; border-bottom: 2px solid #ddd; padding-bottom: 10px; margin-bottom: 20px; }
+  .form-group { margin-bottom: 15px; }
+  label { display: block; font-weight: bold; margin-bottom: 5px; }
+  input[type="text"], input[type="number"], textarea { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+  button { background: #28a745; color: white; border: none; padding: 10px 20px; font-size: 16px; cursor: pointer; border-radius: 4px; }
+  button:hover { background: #218838; }
+  .product-list-table { width: 100%; border-collapse: collapse; margin-top: 30px; }
+  .product-list-table th, .product-list-table td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+  .product-list-table th { background: #f8f9fa; }
+  .btn-delete { background: #dc3545; padding: 5px 10px; font-size: 14px; }
+  .btn-delete:hover { background: #c82333; }
+  .back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+</style>
+</head>
+<body>
 
+<div class="admin-container">
+  <a href="index.html" class="back-link">← サイトトップへ戻る</a>
+  <h1>商品管理ダッシュボード</h1>
+
+  <!-- 商品登録フォーム -->
+  <form id="admin-product-form" onsubmit="handleProductSubmit(event)">
+    <div class="form-group">
+      <label for="p-name">商品名</label>
+      <input type="text" id="p-name" required>
+    </div>
+    <div class="form-group">
+      <label for="p-price">価格 (円)</label>
+      <input type="number" id="p-price" required>
+    </div>
+    <div class="form-group">
+      <label for="p-category">カテゴリ (例: cut, pot など)</label>
+      <input type="text" id="p-category" required>
+    </div>
+    <div class="form-group">
+      <label for="p-image">画像URL</label>
+      <input type="text" id="p-image">
+    </div>
+    <div class="form-group">
+      <label for="p-desc">商品説明</label>
+      <textarea id="p-desc" rows="3"></textarea>
+    </div>
+    <button type="submit">商品を登録する</button>
+  </form>
+
+  <!-- 登録済み商品一覧 -->
+  <h2>登録済み商品一覧</h2>
+  <table class="product-list-table">
+    <thead>
+      <tr>
+        <th>商品名</th>
+        <th>価格</th>
+        <th>カテゴリ</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody id="admin-product-list">
+      <!-- JavaScriptで動的に挿入されます -->
+    </tbody>
+  </table>
+</div>
+
+<script>
+  // 管理画面用の商品一覧取得＆表示
+  async function fetchAdminProducts() {
+    try {
+      const res = await fetch('/api/products');
+      const products = await res.json();
+      const tbody = document.getElementById('admin-product-list');
+      tbody.innerHTML = '';
+
+      if (!Array.isArray(products)) return;
+
+      products.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${p.name}</td>
+          <td>¥${Number(p.price).toLocaleString()}</td>
+          <td>${p.category || ''}</td>
+          <td><button class="btn-delete" onclick="deleteAdminProduct('${p.id}')">削除</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    } catch (err) {
+      console.error('商品データの取得に失敗しました:', err);
+    }
+  }
+
+  // 商品追加処理
+  async function handleProductSubmit(e) {
+    e.preventDefault();
+    const name = document.getElementById('p-name').value;
+    const price = document.getElementById('p-price').value;
+    const category = document.getElementById('p-category').value;
+    const image = document.getElementById('p-image').value;
+    const description = document.getElementById('p-desc').value;
+
+    try {
+      const res = await fetch('/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, price, category, image, description })
+      });
+      const result = await res.json();
+
+      if (result.success) {
+        alert('商品を追加しました！');
+        document.getElementById('admin-product-form').reset();
+        fetchAdminProducts();
+      } else {
+        alert('エラー: ' + result.error);
+      }
+    } catch (err) {
+      console.error('登録失敗:', err);
+    }
+  }
+
+  // 商品削除処理
+  async function deleteAdminProduct(id) {
+    if (!confirm('本当にこの商品を削除しますか？')) return;
+
+    try {
+      const res = await fetch('/api/products', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+      const result = await res.json();
+
+      if (result.success) {
+        alert('商品を削除しました');
+        fetchAdminProducts();
+      } else {
+        alert('エラー: ' + result.error);
+      }
+    } catch (err) {
+      console.error('削除失敗:', err);
+    }
+  }
+
+  // ページ読み込み時に一覧を取得
+  window.addEventListener('DOMContentLoaded', fetchAdminProducts);
+</script>
+</body>
+</html>
