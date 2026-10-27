@@ -326,19 +326,20 @@ function closeProductModal() {
   document.getElementById('product-modal').classList.remove('open');
 }
 
-function saveProductData() {
+async function saveProductData() {
   const id = document.getElementById('edit-id').value;
   const name = document.getElementById('p-name').value.trim();
   const price = Number(document.getElementById('p-price').value);
   const categorySelect = document.getElementById('p-category');
   const category = categorySelect.value;
-  const categoryName = categorySelect.options[categorySelect.selectedIndex].text;
+  const description = document.getElementById('p-desc').value;
   
   if(!name || !price || !category) {
     alert('「商品名」「価格」「カテゴリ」は必須です。');
     return;
   }
 
+  // 既存画像の維持、または新しくアップロードされたBase64画像
   let existingImage = "";
   if(id) {
     const existing = products.find(x => x.id === Number(id));
@@ -346,37 +347,54 @@ function saveProductData() {
   }
   const finalImage = currentImageBase64 || existingImage;
 
-  const newData = {
-    id: id ? Number(id) : Date.now(),
+  const productPayload = {
+    id: id ? Number(id) : null, // API側で新規ならDate.now()を付与
     name: name,
     price: price,
     category: category,
-    categoryName: categoryName,
-    stock: Number(document.getElementById('p-stock').value),
-    color: document.getElementById('p-color').value,
     image: finalImage,
-    desc: document.getElementById('p-desc').value,
-    shipping: document.getElementById('p-shipping').value
+    description: description
   };
 
-  if(id) {
-    const idx = products.findIndex(x => x.id === Number(id));
-    if(idx !== -1) products[idx] = newData;
-  } else {
-    products.unshift(newData);
-  }
+  try {
+    const res = await fetch('/api/products', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(productPayload)
+    });
 
-  localStorage.setItem('hananet_products', JSON.stringify(products));
-  closeProductModal();
-  renderAdminProducts();
-  alert('商品を保存しました！');
+    if (res.ok) {
+      alert('商品を保存しました！');
+      closeProductModal();
+      location.reload(); // 画面を再読み込みして最新データを反映
+    } else {
+      alert('保存に失敗しました。');
+    }
+  } catch (err) {
+    console.error(err);
+    alert('通信エラーが発生しました。');
+  }
 }
 
-function deleteProduct(id) {
+async function deleteProduct(id) {
   if(confirm('本当にこの商品を削除しますか？')) {
-    products = products.filter(x => x.id !== id);
-    localStorage.setItem('hananet_products', JSON.stringify(products));
-    renderAdminProducts();
+    try {
+      const res = await fetch('/api/products', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: Number(id) })
+      });
+
+      if (res.ok) {
+        alert('商品を削除しました。');
+        location.reload();
+      } else {
+        alert('削除に失敗しました。');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('通信エラーが発生しました。');
+    }
   }
 }
 </script>
