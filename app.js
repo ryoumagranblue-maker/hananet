@@ -54,6 +54,12 @@ function toggleFavorite(productId) {
   allFavs[user.userId] = userFavs;
   localStorage.setItem("hananet_favorites", JSON.stringify(allFavs));
   renderProducts();
+  
+  // マイページが開いている場合はお気に入り画面を再描画
+  const dyn = document.getElementById("mp-dynamic-area");
+  if (dyn && dyn.style.display === "block" && dyn.dataset.view === "favorite") {
+    showFavoriteView();
+  }
 }
 
 function filtered() {
@@ -112,7 +118,7 @@ function renderCart() {
   if ($("total")) $("total").textContent = yen(t.total);
 }
 
-// ユーザーアクション（クリック・変更）
+// ユーザーアクション
 document.addEventListener("click", e => {
   const cat = e.target.closest("[data-category]");
   if (cat) {
@@ -131,7 +137,10 @@ document.addEventListener("click", e => {
   }
   const add = e.target.closest("[data-add]");
   if (add) {
-    const id = +add.dataset.add, qty = +$(`qty-${id}`).value;
+    const id = +add.dataset.add;
+    // マイページ内のお気に入りから追加された場合に対応するため、id-qty要素がない場合はデフォルト1
+    const qtyEl = $(`qty-${id}`) || document.getElementById(`mp-qty-${id}`);
+    const qty = qtyEl ? +qtyEl.value : 1;
     cart[id] = (cart[id] || 0) + qty;
     renderCart();
     showToast("カートに追加しました");
@@ -146,7 +155,12 @@ document.addEventListener("click", e => {
 if ($("search-button")) $("search-button").addEventListener("click", renderProducts);
 if ($("search")) $("search").addEventListener("keydown", e => { if (e.key === "Enter") renderProducts(); });
 if ($("reset-button")) $("reset-button").addEventListener("click", () => { category = "all"; if ($("category-label")) $("category-label").textContent = "すべての商品"; if ($("search")) $("search").value = ""; renderProducts(); });
-if ($("product-list")) $("product-list").addEventListener("change", e => { if (e.target.dataset.change) { const id = +e.target.dataset.change, qty = Math.max(1, Math.min(99, +e.target.value || 1)); cart[id] = qty; renderCart(); } });
+document.addEventListener("change", e => {
+  if (e.target.dataset.change) {
+    const id = +e.target.dataset.change, qty = Math.max(1, Math.min(99, +e.target.value || 1));
+    cart[id] = qty; renderCart();
+  }
+});
 ["region", "delivery", "packages"].forEach(id => { if ($(id)) $(id).addEventListener("change", renderCart); });
 if ($("checkout")) $("checkout").addEventListener("click", () => {
   const arr = lines();
@@ -158,6 +172,38 @@ document.querySelectorAll('a[href="#cart"]').forEach(a => a.addEventListener("cl
 
 renderProducts();
 renderCart();
+
+// --- マイページの「お気に入り商品一覧」を描画する関数 ---
+function showFavoriteView() {
+  const dyn = document.getElementById("mp-dynamic-area");
+  if (!dyn) return;
+  dyn.style.display = "block";
+  dyn.dataset.view = "favorite";
+  
+  const favIds = getFavorites();
+  const favProducts = PRODUCTS.filter(p => favIds.includes(p.id));
+
+  if (!favProducts.length) {
+    dyn.innerHTML = "<strong>【お気に入りのお花】</strong><br>お気に入り登録された商品はありません。商品カードの ❤ を押すと追加できます。";
+    return;
+  }
+
+  dyn.innerHTML = `<strong>【お気に入りのお花 (${favProducts.length}件)】</strong><div style="margin-top:10px; display:flex; flex-direction:column; gap:10px;">` + 
+    favProducts.map(p => `
+      <div style="display:flex; align-items:center; background:#fff; padding:8px; border:1px solid #ddd; border-radius:4px; gap:10px;">
+        <img src="${p.image}" style="width:50px; height:50px; object-fit:cover; border-radius:3px;" onerror="this.src='https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/main_2_3.gif'">
+        <div style="flex:1;">
+          <div style="font-weight:bold; font-size:12px;">${p.name}</div>
+          <div style="color:#b04e5b; font-weight:bold;">${yen(p.price)}（税別）</div>
+        </div>
+        <div>
+          <label style="font-size:11px;">数量<select id="mp-qty-${p.id}" style="margin-left:4px;"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select></label>
+          <button data-add="${p.id}" style="background:#789c55; color:white; border:none; padding:5px 10px; border-radius:3px; cursor:pointer; font-size:11px; margin-left:5px;">カートへ</button>
+          <button data-fav="${p.id}" style="background:#d96b91; color:white; border:none; padding:5px 8px; border-radius:3px; cursor:pointer; font-size:11px; margin-left:3px;" title="解除">解除</button>
+        </div>
+      </div>
+    `).join("") + `</div>`;
+}
 
 // --- 会員機能・マイページ・認証スクリプト ---
 document.addEventListener("DOMContentLoaded", () => {
@@ -180,7 +226,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (el) el.textContent = "";
     });
     const dyn = document.getElementById("mp-dynamic-area");
-    if (dyn) { dyn.style.display = "none"; dyn.innerHTML = ""; }
+    if (dyn) { dyn.style.display = "none"; dyn.innerHTML = ""; dyn.removeAttribute("data-view"); }
   }
 
   function updateAuthUI() {
@@ -315,7 +361,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // マイメニュー操作（お気に入り表示・購入履歴・お届け先・情報変更）
+  // マイメニュー操作
   document.addEventListener("click", (e) => {
     const btn = e.target.closest(".mp-menu-btn");
     if (!btn) return;
@@ -323,15 +369,15 @@ document.addEventListener("DOMContentLoaded", () => {
     dyn.style.display = "block";
 
     if (action === "history") {
+      dyn.removeAttribute("data-view");
       dyn.innerHTML = "<strong>【購入履歴・配送状況】</strong><br>現在、過去の注文履歴はありません。（随時発送受付中）";
     } else if (action === "favorite") {
-      const favIds = getFavorites();
-      const favProducts = PRODUCTS.filter(p => favIds.includes(p.id));
-      dyn.innerHTML = `<strong>【お気に入りのお花 (${favProducts.length}件)】</strong><br>` + 
-        (favProducts.length ? favProducts.map(p => `• ${p.name} (${yen(p.price)})`).join("<br>") : "お気に入り登録された商品はありません。商品カードの ❤ を押すと追加できます。");
+      showFavoriteView();
     } else if (action === "address") {
+      dyn.removeAttribute("data-view");
       dyn.innerHTML = "<strong>【お届け先リスト管理】</strong><br>登録住所: 大阪市平野区（デフォルト）<br><small>+ 新しいお届け先の追加・編集が可能です</small>";
     } else if (action === "settings") {
+      dyn.removeAttribute("data-view");
       dyn.innerHTML = "<strong>【会員情報・パスワード変更】</strong><br>登録メールアドレスやパスワードの変更が行えます。（アカウント状態：正常）";
     }
   });
@@ -344,7 +390,7 @@ document.addEventListener("DOMContentLoaded", () => {
     modal.style.display = "none"; resetAuthForms(); updateAuthUI();
   });
 
-  // アカウント削除（退会）機能
+  // アカウント削除（退会）
   const btnDelete = document.getElementById("btn-delete-account");
   if (btnDelete) btnDelete.addEventListener("click", () => {
     const currentUser = JSON.parse(localStorage.getItem("hananet_current_user") || "null");
