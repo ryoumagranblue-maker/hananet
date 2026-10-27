@@ -1,26 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 
-// 環境変数ではなく、直接SupabaseのURLとANON_KEYを貼り付ける場合
-const supabaseUrl = 'YOUR_SUPABASE_URL'; 
-const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
+// Vercel上の様々な環境変数名に対応できるように確実に取得します
+const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseKey = process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+
+if (!supabaseUrl || !supabaseUrl.startsWith('http')) {
+  console.error("致命的エラー: Supabase URLが正しく設定されていません。現在の値:", supabaseUrl);
+}
 
 const supabase = createClient(supabaseUrl, supabaseKey);
-
-// データベースが空の場合の初期データ（id, name, price, category, image, description）
-const defaultProducts = [
-  {id: 1, name: "奉仕品ピンポン菊 1ロット10本 白", price: 1600, category: "cut", description: "奉仕価格での販売は1回の発送につき1ロットまで。70cm程度。", image: "https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
-  {id: 2, name: "奉仕品ピンポン菊 1ロット10本 黄色", price: 1600, category: "cut", description: "奉仕価格での販売は1回の発送につき1ロットまで。70cm程度。", image: "https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
-  {id: 3, name: "特価品ガーベラ 1ロット20本 色おまかせ", price: 2000, category: "cut", description: "色おまかせ。1ロット20本。", image: "https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
-  {id: 4, name: "特価品ガーベラ 1ロット10本", price: 1000, category: "cut", description: "色を選ぶ切り花特価品。1ロット10本。", image: "https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
-  {id: 5, name: "スプレーカーネーション 1ロット25本", price: 5000, category: "cut", description: "長さ50cm程度。色・希望日はお問い合わせください。", image: "https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
-  {id: 6, name: "カーネーション 1ロット50本 色おまかせMix", price: 9500, category: "cut", description: "切り花まとめ買い向け商品。", image: "https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
-  {id: 7, name: "カーネーション 1ロット25本", price: 5000, category: "cut", description: "色を選べる切り花。", image: "https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
-  {id: 8, name: "バラ 1ロット20本", price: 3900, category: "rose", description: "複数色から選べるバラ。", image: "https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
-  {id: 9, name: "アンスリューム", price: 3500, category: "pot", description: "2023年9月29日新春の導入詳細に基づく。", image: "https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
-  {id: 10, name: "胡蝶蘭", price: 8800, category: "orchid", description: "HANTENサイトの商品カテゴリを参考にしたデモ商品。", image: "https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
-  {id: 11, name: "観葉植物", price: 2800, category: "green", description: "HANTENサイトの商品カテゴリを参考にしたデモ商品。", image: "https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"},
-  {id: 12, name: "お供え・弔事アレンジ", price: 3500, category: "condolence", description: "HANTENサイトの商品カテゴリを参考にしたデモ商品。", image: "https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/left_ber02.gif"}
-];
 
 export default async function handler(req, res) {
   const method = req.method;
@@ -28,17 +16,8 @@ export default async function handler(req, res) {
   try {
     // 1. 商品一覧の取得 (GET)
     if (method === 'GET') {
-      let { data, error } = await supabase.from('products').select('*');
+      const { data, error } = await supabase.from('products').select('*');
       if (error) throw error;
-
-      // データベースが空の場合、自動的に初期データを挿入して表示を復旧する
-      if (!data || data.length === 0) {
-        const { error: insertError } = await supabase.from('products').insert(defaultProducts);
-        if (!insertError) {
-          data = defaultProducts;
-        }
-      }
-
       return res.status(200).json(data || []);
     }
 
