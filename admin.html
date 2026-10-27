@@ -26,8 +26,6 @@
   .product-admin-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12px; }
   .product-admin-table th, .product-admin-table td { border: 1px solid #e3e8d9; padding: 8px 10px; text-align: left; vertical-align: middle; }
   .product-admin-table th { background: #f3f7eb; color: #4d7435; font-weight: bold; }
-  
-  /* 画像の引き伸ばし・フィット表示 */
   .product-admin-table td img { width: 45px; height: 45px; object-fit: cover; border-radius: 4px; vertical-align: middle; margin-right: 8px; background: #f8f3ee; flex-shrink: 0; }
   
   .btn-sm { padding: 4px 10px; font-size: 11px; border: 1px solid #d96b91; background: #fff0f4; color: #b84c73; border-radius: 3px; cursor: pointer; margin-right: 4px; }
@@ -55,11 +53,14 @@
     <p style="font-size: 12px; color: #877a72; margin-bottom: 20px;">花ネットの商品データを管理するにはログインしてください。</p>
     <div class="field">
       <label>管理者ID</label>
-      <input type="text" id="login-id" value="admin">
+      <input type="text" id="login-id" class="admin-login-input" value="admin" autocomplete="off">
     </div>
     <div class="field">
       <label>パスワード</label>
-      <input type="password" id="login-pass" placeholder="パスワードを入力">
+      <div style="position:relative;">
+        <input type="password" id="login-pass" class="admin-login-input" placeholder="パスワードを入力" style="padding-right:50px;">
+        <button type="button" id="btn-show-admin-pw" style="position:absolute; right:5px; top:50%; transform:translateY(-50%); background:#eee; border:1px solid #ccc; font-size:10px; padding:3px 6px; border-radius:3px; cursor:pointer; user-select:none;">表示</button>
+      </div>
     </div>
     <button class="btn-main" onclick="handleLogin()">ログイン</button>
     <div id="login-error" class="error-msg"></div>
@@ -147,7 +148,6 @@
       </div>
     </div>
     
-    <!-- ファイル添付用画像フィールド -->
     <div class="field" style="margin-bottom:12px;">
       <label style="display:block; font-size:12px; font-weight:bold; margin-bottom:4px;">商品画像（ファイル添付）</label>
       <input type="file" id="product-image-file" accept="image/*" style="width:100%; padding:5px; border:1px solid #ccc; border-radius:4px; box-sizing:border-box; font-size:12px;">
@@ -192,13 +192,34 @@ const defaultProducts = [
 let products = JSON.parse(localStorage.getItem('hananet_products') || 'null') || defaultProducts;
 let currentImageBase64 = "";
 
-// ページ読み込み時にセッションストレージをチェックし、ログイン中ならダッシュボードを表示
 document.addEventListener("DOMContentLoaded", () => {
   if (sessionStorage.getItem('hananet_admin_logged_in') === 'true') {
     document.getElementById('login-view').style.display = 'none';
     document.getElementById('admin-view').style.display = 'block';
     renderAdminProducts();
   }
+
+  // ★ パスワード「左クリックしている間だけ見える」機能
+  const pwBtn = document.getElementById('btn-show-admin-pw');
+  const pwInput = document.getElementById('login-pass');
+  if (pwBtn && pwInput) {
+    const show = () => pwInput.type = "text";
+    const hide = () => pwInput.type = "password";
+    pwBtn.addEventListener("mousedown", show);
+    pwBtn.addEventListener("mouseup", hide);
+    pwBtn.addEventListener("mouseleave", hide);
+    pwBtn.addEventListener("touchstart", (e) => { e.preventDefault(); show(); });
+    pwBtn.addEventListener("touchend", hide);
+  }
+
+  // ★ ログイン画面でのエンターキー対応
+  document.addEventListener("keydown", (e) => {
+    const loginView = document.getElementById('login-view');
+    if (e.key === "Enter" && loginView && loginView.style.display !== "none") {
+      e.preventDefault();
+      handleLogin();
+    }
+  });
 });
 
 // ファイル選択時のプレビューおよびBase64変換処理
@@ -224,7 +245,6 @@ function handleLogin() {
   const id = document.getElementById('login-id').value;
   const pass = document.getElementById('login-pass').value;
   if(id === 'admin' && pass === 'flower2026') {
-    // ブラウザを閉じると消える sessionStorage にログイン状態を保持
     sessionStorage.setItem('hananet_admin_logged_in', 'true');
     document.getElementById('login-view').style.display = 'none';
     document.getElementById('admin-view').style.display = 'block';
