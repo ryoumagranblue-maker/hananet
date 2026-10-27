@@ -55,7 +55,6 @@ function toggleFavorite(productId) {
   localStorage.setItem("hananet_favorites", JSON.stringify(allFavs));
   renderProducts();
   
-  // マイページが開いている場合はお気に入り画面を再描画
   const dyn = document.getElementById("mp-dynamic-area");
   if (dyn && dyn.style.display === "block" && dyn.dataset.view === "favorite") {
     showFavoriteView();
@@ -81,7 +80,7 @@ function renderProducts() {
     const isFav = favs.includes(p.id);
     return `<article class="product-row" style="position:relative;">
       <button data-fav="${p.id}" style="position:absolute; top:10px; right:10px; background:${isFav ? '#d96b91' : '#fff'}; color:${isFav ? '#fff' : '#888'}; border:1px solid #ddd; border-radius:50%; width:30px; height:30px; cursor:pointer; font-size:14px;" title="お気に入り">❤</button>
-      <img src="${p.image}" alt="${p.name}" loading="lazy" onerror="this.onerror=null;this.src='https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/main_2_3.gif'">
+      <img src="${p.image}" alt="${p.name}" loading="lazy" style="width:70px; height:70px; object-fit:cover; border-radius:4px; flex-shrink:0;" onerror="this.onerror=null;this.src='https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/main_2_3.gif'">
       <div>
         <h3>${p.name}</h3>
         <div class="sku">商品番号：${p.sku || 'K-' + p.id} 分類：${p.categoryName || p.category}</div>
@@ -110,7 +109,7 @@ function renderCart() {
   if (!$("cart-list")) return;
   const arr = lines();
   if ($("top-cart-count")) $("top-cart-count").textContent = arr.reduce((s, x) => s + x.qty, 0);
-  $("cart-list").innerHTML = arr.length ? arr.map(({ p, qty }) => `<div class="cart-line"><div><strong>${p.name}</strong><br><small>${p.sku || ''} / ${p.unit || ''}</small></div><label>数量 <input type="number" min="1" max="99" value="${qty}" data-change="${p.id}"></label><strong>${yen(p.price * qty)}</strong><button data-remove="${p.id}">削除</button></div>`).join("") : "カートに商品は入っていません。";
+  $("cart-list").innerHTML = arr.length ? arr.map(({ p, qty }) => `<div class="cart-line"><img src="${p.image}" style="width:40px; height:40px; object-fit:cover; border-radius:3px;" onerror="this.src='https://web.archive.org/web/20230930002033im_/http://hananet.jp/image/index/main_2_3.gif'"><div><strong>${p.name}</strong><br><small>${p.sku || ''} / ${p.unit || ''}</small></div><label>数量 <input type="number" min="1" max="99" value="${qty}" data-change="${p.id}"></label><strong>${yen(p.price * qty)}</strong><button data-remove="${p.id}">削除</button></div>`).join("") : "カートに商品は入っていません。";
   const t = compute();
   if ($("subtotal")) $("subtotal").textContent = yen(t.subtotal);
   if ($("shipping")) $("shipping").textContent = yen(t.shipping);
@@ -118,62 +117,7 @@ function renderCart() {
   if ($("total")) $("total").textContent = yen(t.total);
 }
 
-// ユーザーアクション
-document.addEventListener("click", e => {
-  const cat = e.target.closest("[data-category]");
-  if (cat) {
-    e.preventDefault();
-    category = cat.dataset.category;
-    if ($("category-label")) $("category-label").textContent = cat.textContent;
-    renderProducts();
-    document.querySelectorAll("[data-category]").forEach(a => a.style.background = "");
-    cat.style.background = "#fff4c8";
-    return;
-  }
-  const fav = e.target.closest("[data-fav]");
-  if (fav) {
-    toggleFavorite(+fav.dataset.fav);
-    return;
-  }
-  const add = e.target.closest("[data-add]");
-  if (add) {
-    const id = +add.dataset.add;
-    // マイページ内のお気に入りから追加された場合に対応するため、id-qty要素がない場合はデフォルト1
-    const qtyEl = $(`qty-${id}`) || document.getElementById(`mp-qty-${id}`);
-    const qty = qtyEl ? +qtyEl.value : 1;
-    cart[id] = (cart[id] || 0) + qty;
-    renderCart();
-    showToast("カートに追加しました");
-    return;
-  }
-  const rem = e.target.closest("[data-remove]");
-  if (rem) { delete cart[+rem.dataset.remove]; renderCart(); return; }
-  const s = e.target.closest("[data-sort]");
-  if (s) { sort = s.dataset.sort; renderProducts(); }
-});
-
-if ($("search-button")) $("search-button").addEventListener("click", renderProducts);
-if ($("search")) $("search").addEventListener("keydown", e => { if (e.key === "Enter") renderProducts(); });
-if ($("reset-button")) $("reset-button").addEventListener("click", () => { category = "all"; if ($("category-label")) $("category-label").textContent = "すべての商品"; if ($("search")) $("search").value = ""; renderProducts(); });
-document.addEventListener("change", e => {
-  if (e.target.dataset.change) {
-    const id = +e.target.dataset.change, qty = Math.max(1, Math.min(99, +e.target.value || 1));
-    cart[id] = qty; renderCart();
-  }
-});
-["region", "delivery", "packages"].forEach(id => { if ($(id)) $(id).addEventListener("change", renderCart); });
-if ($("checkout")) $("checkout").addEventListener("click", () => {
-  const arr = lines();
-  if (!arr.length) { showToast("カートに商品を入れてください"); return; }
-  const t = compute();
-  alert("【注文内容確認デモ】\n" + arr.map(x => `${x.p.name} × ${x.qty}：${yen(x.p.price * x.qty)}`).join("\n") + `\n\n商品合計：${yen(t.subtotal)}\n送料：${yen(t.shipping)}\n消費税（仮計算）：${yen(t.tax)}\n合計：${yen(t.total)}\n\n注文・決済は実行されていません。`);
-});
-document.querySelectorAll('a[href="#cart"]').forEach(a => a.addEventListener("click", () => setTimeout(() => { if ($("cart")) $("cart").scrollIntoView({ behavior: "smooth" }); }, 20)));
-
-renderProducts();
-renderCart();
-
-// --- マイページの「お気に入り商品一覧」を描画する関数 ---
+// お気に入り一覧画面の描画
 function showFavoriteView() {
   const dyn = document.getElementById("mp-dynamic-area");
   if (!dyn) return;
@@ -204,6 +148,177 @@ function showFavoriteView() {
       </div>
     `).join("") + `</div>`;
 }
+
+// ユーザーアクションおよびマイメニューの完全統合イベント
+document.addEventListener("click", e => {
+  const cat = e.target.closest("[data-category]");
+  if (cat) {
+    e.preventDefault();
+    category = cat.dataset.category;
+    if ($("category-label")) $("category-label").textContent = cat.textContent;
+    renderProducts();
+    document.querySelectorAll("[data-category]").forEach(a => a.style.background = "");
+    cat.style.background = "#fff4c8";
+    return;
+  }
+  const fav = e.target.closest("[data-fav]");
+  if (fav) {
+    toggleFavorite(+fav.dataset.fav);
+    return;
+  }
+  const add = e.target.closest("[data-add]");
+  if (add) {
+    const id = +add.dataset.add;
+    const qtyEl = $(`qty-${id}`) || document.getElementById(`mp-qty-${id}`);
+    const qty = qtyEl ? +qtyEl.value : 1;
+    cart[id] = (cart[id] || 0) + qty;
+    renderCart();
+    showToast("カートに追加しました");
+    return;
+  }
+  const rem = e.target.closest("[data-remove]");
+  if (rem) { delete cart[+rem.dataset.remove]; renderCart(); return; }
+  const s = e.target.closest("[data-sort]");
+  if (s) { sort = s.dataset.sort; renderProducts(); return; }
+
+  // マイメニューのボタン判定
+  const btn = e.target.closest(".mp-menu-btn");
+  if (btn) {
+    const action = btn.dataset.action;
+    const dyn = document.getElementById("mp-dynamic-area");
+    if (!dyn) return;
+    dyn.style.display = "block";
+    dyn.removeAttribute("data-view");
+
+    const currentUser = JSON.parse(localStorage.getItem("hananet_current_user") || "null");
+    if (!currentUser) return;
+
+    if (action === "history") {
+      dyn.innerHTML = `
+        <strong>【購入履歴・配送状況】</strong>
+        <div style="margin-top:6px; background:#fff; padding:8px; border:1px solid #ddd; border-radius:4px;">
+          <p style="margin:0 0 4px; font-weight:bold; color:#5b793f;">注文番号: #HN-2026-1027</p>
+          <p style="margin:0; font-size:11px; color:#666;">状態: <span style="color:green; font-weight:bold;">発送準備完了（常温便）</span></p>
+          <p style="margin:2px 0 0; font-size:11px; color:#666;">お届け先: 大阪市平野区</p>
+        </div>
+      `;
+    } else if (action === "favorite") {
+      showFavoriteView();
+    } else if (action === "address") {
+      let addresses = JSON.parse(localStorage.getItem(`hananet_addresses_${currentUser.userId}`) || '["大阪市平野区 ご自宅"]');
+      dyn.innerHTML = `
+        <strong>【お届け先リスト管理】</strong>
+        <div style="margin-top:6px;" id="addr-list-container">
+          ${addresses.map((addr, idx) => `
+            <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:6px 8px; border:1px solid #ddd; border-radius:3px; margin-bottom:4px; font-size:11px;">
+              <span>🏠 ${addr}</span>
+              <button type="button" data-del-addr="${idx}" style="background:#b04e5b; color:white; border:none; padding:2px 6px; border-radius:3px; cursor:pointer; font-size:10px;">削除</button>
+            </div>
+          `).join("")}
+        </div>
+        <div style="margin-top:8px; display:flex; gap:5px;">
+          <input type="text" id="new-address-input" placeholder="新しいお届け先を入力" style="flex:1; padding:5px; border:1px solid #ccc; border-radius:3px; font-size:11px;">
+          <button type="button" id="btn-add-address" style="background:#789c55; color:white; border:none; padding:5px 10px; border-radius:3px; cursor:pointer; font-size:11px;">追加</button>
+        </div>
+      `;
+    } else if (action === "settings") {
+      dyn.innerHTML = `
+        <strong>【会員情報・パスワード変更】</strong>
+        <div style="margin-top:8px; display:flex; flex-direction:column; gap:8px;">
+          <div>
+            <label style="font-size:10px; font-weight:bold; display:block; margin-bottom:2px;">お名前</label>
+            <input type="text" id="edit-name" value="${currentUser.name}" style="width:100%; padding:6px; border:1px solid #ccc; border-radius:3px; font-size:11px; box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="font-size:10px; font-weight:bold; display:block; margin-bottom:2px;">メールアドレス</label>
+            <input type="email" id="edit-email" value="${currentUser.email}" style="width:100%; padding:6px; border:1px solid #ccc; border-radius:3px; font-size:11px; box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="font-size:10px; font-weight:bold; display:block; margin-bottom:2px;">新しいパスワード（変更する場合のみ）</label>
+            <input type="password" id="edit-password" placeholder="変更しない場合は空欄" style="width:100%; padding:6px; border:1px solid #ccc; border-radius:3px; font-size:11px; box-sizing:border-box;">
+          </div>
+          <button type="button" id="btn-save-settings" style="background:#789c55; color:white; border:none; padding:8px; border-radius:3px; cursor:pointer; font-weight:bold; margin-top:4px; font-size:11px;">変更を保存する</button>
+        </div>
+      `;
+    }
+    return;
+  }
+
+  // お届け先追加
+  if (e.target.id === "btn-add-address") {
+    const input = document.getElementById("new-address-input");
+    const val = input ? input.value.trim() : "";
+    if (!val) return;
+    let addresses = JSON.parse(localStorage.getItem(`hananet_addresses_${currentUser.userId}`) || '["大阪市平野区 ご自宅"]');
+    addresses.push(val);
+    localStorage.setItem(`hananet_addresses_${currentUser.userId}`, JSON.stringify(addresses));
+    document.querySelector('[data-action="address"]').click();
+    showToast("お届け先を追加しました");
+    return;
+  }
+
+  // お届け先削除
+  if (e.target.dataset.delAddr !== undefined) {
+    const idx = +e.target.dataset.delAddr;
+    let addresses = JSON.parse(localStorage.getItem(`hananet_addresses_${currentUser.userId}`) || '["大阪市平野区 ご自宅"]');
+    addresses.splice(idx, 1);
+    localStorage.setItem(`hananet_addresses_${currentUser.userId}`, JSON.stringify(addresses));
+    document.querySelector('[data-action="address"]').click();
+    showToast("お届け先を削除しました");
+    return;
+  }
+
+  // 会員情報保存
+  if (e.target.id === "btn-save-settings") {
+    const name = document.getElementById("edit-name").value.trim();
+    const email = document.getElementById("edit-email").value.trim();
+    const password = document.getElementById("edit-password").value.trim();
+
+    if (!name || !email) {
+      alert("お名前とメールアドレスは必須です。");
+      return;
+    }
+
+    currentUser.name = name;
+    currentUser.email = email;
+    if (password) currentUser.password = password;
+
+    let users = JSON.parse(localStorage.getItem("hananet_users") || "[]");
+    users = users.map(u => u.userId === currentUser.userId ? currentUser : u);
+    localStorage.setItem("hananet_users", JSON.stringify(users));
+    localStorage.setItem("hananet_current_user", JSON.stringify(currentUser));
+
+    document.getElementById("mp-username").textContent = currentUser.name;
+    document.getElementById("mp-email").textContent = currentUser.email;
+    
+    const regNav = document.getElementById("nav-register");
+    if (regNav) regNav.textContent = currentUser.name + "様";
+
+    alert("会員情報を更新しました！");
+    return;
+  }
+});
+
+if ($("search-button")) $("search-button").addEventListener("click", renderProducts);
+if ($("search")) $("search").addEventListener("keydown", e => { if (e.key === "Enter") renderProducts(); });
+if ($("reset-button")) $("reset-button").addEventListener("click", () => { category = "all"; if ($("category-label")) $("category-label").textContent = "すべての商品"; if ($("search")) $("search").value = ""; renderProducts(); });
+document.addEventListener("change", e => {
+  if (e.target.dataset.change) {
+    const id = +e.target.dataset.change, qty = Math.max(1, Math.min(99, +e.target.value || 1));
+    cart[id] = qty; renderCart();
+  }
+});
+["region", "delivery", "packages"].forEach(id => { if ($(id)) $(id).addEventListener("change", renderCart); });
+if ($("checkout")) $("checkout").addEventListener("click", () => {
+  const arr = lines();
+  if (!arr.length) { showToast("カートに商品を入れてください"); return; }
+  const t = compute();
+  alert("【注文内容確認デモ】\n" + arr.map(x => `${x.p.name} × ${x.qty}：${yen(x.p.price * x.qty)}`).join("\n") + `\n\n商品合計：${yen(t.subtotal)}\n送料：${yen(t.shipping)}\n消費税（仮計算）：${yen(t.tax)}\n合計：${yen(t.total)}\n\n注文・決済は実行されていません。`);
+});
+document.querySelectorAll('a[href="#cart"]').forEach(a => a.addEventListener("click", () => setTimeout(() => { if ($("cart")) $("cart").scrollIntoView({ behavior: "smooth" }); }, 20)));
+
+renderProducts();
+renderCart();
 
 // --- 会員機能・マイページ・認証スクリプト ---
 document.addEventListener("DOMContentLoaded", () => {
@@ -361,70 +476,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // マイメニュー操作
- // --- マイメニューの各機能（購入履歴・お気に入り・お届け先・会員情報変更）の完全統合処理 ---
-document.addEventListener("click", (e) => {
-  const btn = e.target.closest(".mp-menu-btn");
-  if (!btn) return;
-  const action = btn.dataset.action;
-  const dyn = document.getElementById("mp-dynamic-area");
-  if (!dyn) return;
-  dyn.style.display = "block";
-  dyn.removeAttribute("data-view");
-
-  const currentUser = JSON.parse(localStorage.getItem("hananet_current_user") || "null");
-  if (!currentUser) return;
-
-  if (action === "history") {
-    dyn.innerHTML = `
-      <strong>【購入履歴・配送状況】</strong>
-      <div style="margin-top:6px; background:#fff; padding:8px; border:1px solid #ddd; border-radius:4px;">
-        <p style="margin:0 0 4px; font-weight:bold; color:#5b793f;">注文番号: #HN-2026-1027</p>
-        <p style="margin:0; font-size:11px; color:#666;">状態: <span style="color:green; font-weight:bold;">発送準備完了（常温便）</span></p>
-        <p style="margin:2px 0 0; font-size:11px; color:#666;">お届け先: 大阪市平野区</p>
-      </div>
-    `;
-  } else if (action === "favorite") {
-    showFavoriteView();
-  } else if (action === "address") {
-    let addresses = JSON.parse(localStorage.getItem(`hananet_addresses_${currentUser.userId}`) || '["大阪市平野区 ご自宅"]');
-    dyn.innerHTML = `
-      <strong>【お届け先リスト管理】</strong>
-      <div style="margin-top:6px;" id="addr-list-container">
-        ${addresses.map((addr, idx) => `
-          <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:6px 8px; border:1px solid #ddd; border-radius:3px; margin-bottom:4px; font-size:11px;">
-            <span>🏠 ${addr}</span>
-            <button type="button" data-del-addr="${idx}" style="background:#b04e5b; color:white; border:none; padding:2px 6px; border-radius:3px; cursor:pointer; font-size:10px;">削除</button>
-          </div>
-        `).join("")}
-      </div>
-      <div style="margin-top:8px; display:flex; gap:5px;">
-        <input type="text" id="new-address-input" placeholder="新しいお届け先を入力" style="flex:1; padding:5px; border:1px solid #ccc; border-radius:3px; font-size:11px;">
-        <button type="button" id="btn-add-address" style="background:#789c55; color:white; border:none; padding:5px 10px; border-radius:3px; cursor:pointer; font-size:11px;">追加</button>
-      </div>
-    `;
-  } else if (action === "settings") {
-    // ここで確実に会員情報の入力フォームを展開します
-    dyn.innerHTML = `
-      <strong>【会員情報・パスワード変更】</strong>
-      <div style="margin-top:8px; display:flex; flex-direction:column; gap:8px;">
-        <div>
-          <label style="font-size:10px; font-weight:bold; display:block; margin-bottom:2px;">お名前</label>
-          <input type="text" id="edit-name" value="${currentUser.name}" style="width:100%; padding:6px; border:1px solid #ccc; border-radius:3px; font-size:11px; box-sizing:border-box;">
-        </div>
-        <div>
-          <label style="font-size:10px; font-weight:bold; display:block; margin-bottom:2px;">メールアドレス</label>
-          <input type="email" id="edit-email" value="${currentUser.email}" style="width:100%; padding:6px; border:1px solid #ccc; border-radius:3px; font-size:11px; box-sizing:border-box;">
-        </div>
-        <div>
-          <label style="font-size:10px; font-weight:bold; display:block; margin-bottom:2px;">新しいパスワード（変更する場合のみ）</label>
-          <input type="password" id="edit-password" placeholder="変更しない場合は空欄" style="width:100%; padding:6px; border:1px solid #ccc; border-radius:3px; font-size:11px; box-sizing:border-box;">
-        </div>
-        <button type="button" id="btn-save-settings" style="background:#789c55; color:white; border:none; padding:8px; border-radius:3px; cursor:pointer; font-weight:bold; margin-top:4px; font-size:11px;">変更を保存する</button>
-      </div>
-    `;
-  }
-});
   // ログアウト
   const btnLogout = document.getElementById("btn-logout");
   if (btnLogout) btnLogout.addEventListener("click", () => {
@@ -447,126 +498,4 @@ document.addEventListener("click", (e) => {
       modal.style.display = "none"; resetAuthForms(); updateAuthUI();
     }
   });
-});
-
-// --- マイメニュー機能（各情報変更フォーム・お届け先・購入履歴の完全実装） ---
-document.addEventListener("click", (e) => {
-  const btn = e.target.closest(".mp-menu-btn");
-  if (!btn) return;
-  const action = btn.dataset.action;
-  const dyn = document.getElementById("mp-dynamic-area");
-  if (!dyn) return;
-  dyn.style.display = "block";
-  dyn.removeAttribute("data-view");
-
-  const currentUser = JSON.parse(localStorage.getItem("hananet_current_user") || "null");
-  if (!currentUser) return;
-
-  if (action === "history") {
-    dyn.innerHTML = `
-      <strong>【購入履歴・配送状況】</strong>
-      <div style="margin-top:6px; background:#fff; padding:8px; border:1px solid #ddd; border-radius:4px;">
-        <p style="margin:0 0 4px; font-weight:bold; color:#5b793f;">注文番号: #HN-2026-1027</p>
-        <p style="margin:0; font-size:11px; color:#666;">状態: <span style="color:green; font-weight:bold;">発送準備完了（常温便）</span></p>
-        <p style="margin:2px 0 0; font-size:11px; color:#666;">お届け先: 大阪市平野区</p>
-      </div>
-    `;
-  } else if (action === "favorite") {
-    showFavoriteView();
-  } else if (action === "address") {
-    let addresses = JSON.parse(localStorage.getItem(`hananet_addresses_${currentUser.userId}`) || '["大阪市平野区 ご自宅"]');
-    dyn.innerHTML = `
-      <strong>【お届け先リスト管理】</strong>
-      <div style="margin-top:6px;" id="addr-list-container">
-        ${addresses.map((addr, idx) => `
-          <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:6px 8px; border:1px solid #ddd; border-radius:3px; margin-bottom:4px; font-size:11px;">
-            <span>🏠 ${addr}</span>
-            <button type="button" data-del-addr="${idx}" style="background:#b04e5b; color:white; border:none; padding:2px 6px; border-radius:3px; cursor:pointer; font-size:10px;">削除</button>
-          </div>
-        `).join("")}
-      </div>
-      <div style="margin-top:8px; display:flex; gap:5px;">
-        <input type="text" id="new-address-input" placeholder="新しいお届け先を入力" style="flex:1; padding:5px; border:1px solid #ccc; border-radius:3px; font-size:11px;">
-        <button type="button" id="btn-add-address" style="background:#789c55; color:white; border:none; padding:5px 10px; border-radius:3px; cursor:pointer; font-size:11px;">追加</button>
-      </div>
-    `;
-  } else if (action === "settings") {
-    dyn.innerHTML = `
-      <strong>【会員情報・パスワード変更】</strong>
-      <div style="margin-top:6px; display:flex; flex-direction:column; gap:6px;">
-        <div>
-          <label style="font-size:10px; font-weight:bold; display:block;">お名前</label>
-          <input type="text" id="edit-name" value="${currentUser.name}" style="width:100%; padding:5px; border:1px solid #ccc; border-radius:3px; font-size:11px; box-sizing:border-box;">
-        </div>
-        <div>
-          <label style="font-size:10px; font-weight:bold; display:block;">メールアドレス</label>
-          <input type="email" id="edit-email" value="${currentUser.email}" style="width:100%; padding:5px; border:1px solid #ccc; border-radius:3px; font-size:11px; box-sizing:border-box;">
-        </div>
-        <div>
-          <label style="font-size:10px; font-weight:bold; display:block;">新しいパスワード（変更する場合のみ）</label>
-          <input type="password" id="edit-password" placeholder="変更しない場合は空欄" style="width:100%; padding:5px; border:1px solid #ccc; border-radius:3px; font-size:11px; box-sizing:border-box;">
-        </div>
-        <button type="button" id="btn-save-settings" style="background:#789c55; color:white; border:none; padding:6px; border-radius:3px; cursor:pointer; font-weight:bold; margin-top:4px;">変更を保存する</button>
-      </div>
-    `;
-  }
-});
-
-// お届け先・会員情報の保存や削除操作のハンドリング
-document.addEventListener("click", (e) => {
-  const currentUser = JSON.parse(localStorage.getItem("hananet_current_user") || "null");
-  if (!currentUser) return;
-
-  // お届け先追加
-  if (e.target.id === "btn-add-address") {
-    const input = document.getElementById("new-address-input");
-    const val = input ? input.value.trim() : "";
-    if (!val) return;
-    let addresses = JSON.parse(localStorage.getItem(`hananet_addresses_${currentUser.userId}`) || '["大阪市平野区 ご自宅"]');
-    addresses.push(val);
-    localStorage.setItem(`hananet_addresses_${currentUser.userId}`, JSON.stringify(addresses));
-    document.querySelector('[data-action="address"]').click(); // 再描画
-    showToast("お届け先を追加しました");
-  }
-
-  // お届け先削除
-  if (e.target.dataset.delAddr !== undefined) {
-    const idx = +e.target.dataset.delAddr;
-    let addresses = JSON.parse(localStorage.getItem(`hananet_addresses_${currentUser.userId}`) || '["大阪市平野区 ご自宅"]');
-    addresses.splice(idx, 1);
-    localStorage.setItem(`hananet_addresses_${currentUser.userId}`, JSON.stringify(addresses));
-    document.querySelector('[data-action="address"]').click(); // 再描画
-    showToast("お届け先を削除しました");
-  }
-
-  // 会員情報保存
-  if (e.target.id === "btn-save-settings") {
-    const name = document.getElementById("edit-name").value.trim();
-    const email = document.getElementById("edit-email").value.trim();
-    const password = document.getElementById("edit-password").value.trim();
-
-    if (!name || !email) {
-      alert("お名前とメールアドレスは必須です。");
-      return;
-    }
-
-    currentUser.name = name;
-    currentUser.email = email;
-    if (password) currentUser.password = password;
-
-    // ユーザー一覧も更新
-    let users = JSON.parse(localStorage.getItem("hananet_users") || "[]");
-    users = users.map(u => u.userId === currentUser.userId ? currentUser : u);
-    localStorage.setItem("hananet_users", JSON.stringify(users));
-    localStorage.setItem("hananet_current_user", JSON.stringify(currentUser));
-
-    document.getElementById("mp-username").textContent = currentUser.name;
-    document.getElementById("mp-email").textContent = currentUser.email;
-    
-    // ヘッダー表示も更新
-    const regNav = document.getElementById("nav-register");
-    if (regNav) regNav.textContent = currentUser.name + "様";
-
-    alert("会員情報を更新しました！");
-  }
 });
