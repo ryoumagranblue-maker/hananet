@@ -79,3 +79,155 @@ $("checkout").addEventListener("click",()=>{const arr=lines();if(!arr.length){sh
 document.querySelectorAll('a[href="#cart"]').forEach(a=>a.addEventListener("click",()=>setTimeout(()=> $("cart").scrollIntoView({behavior:"smooth"}),20)));
 
 renderProducts();renderCart();
+
+// --- 会員機能（localStorage連携） ---
+document.addEventListener("DOMContentLoaded", () => {
+  const modal = document.getElementById("auth-modal");
+  const modalTitle = document.getElementById("auth-modal-title");
+  const formLogin = document.getElementById("form-login");
+  const formRegister = document.getElementById("form-register");
+  const formMypage = document.getElementById("form-mypage");
+
+  // ログイン状態の確認とボタン表示の更新
+  function updateAuthUI() {
+    const currentUser = JSON.parse(localStorage.getItem("hananet_current_user") || "null");
+    const loginNav = document.getElementById("nav-login");
+    const regNav = document.getElementById("nav-register");
+
+    if (currentUser) {
+      if (loginNav) loginNav.textContent = "マイページ";
+      if (regNav) regNav.textContent = currentUser.name + "様";
+    } else {
+      if (loginNav) loginNav.textContent = "ログイン";
+      if (regNav) regNav.textContent = "無料会員登録";
+    }
+  }
+
+  updateAuthUI();
+
+  // モーダルを開く共通関数
+  function openAuthModal(type) {
+    if (!modal) return;
+    modal.style.display = "flex";
+    const currentUser = JSON.parse(localStorage.getItem("hananet_current_user") || "null");
+
+    if (type === "login") {
+      if (currentUser) {
+        // すでにログイン中の場合はマイページを表示
+        modalTitle.textContent = "会員様窓口（マイページ）";
+        formLogin.style.display = "none";
+        formRegister.style.display = "none";
+        formMypage.style.display = "block";
+        document.getElementById("mp-username").textContent = currentUser.name;
+        document.getElementById("mp-userid").textContent = currentUser.userId;
+        document.getElementById("mp-email").textContent = currentUser.email;
+      } else {
+        modalTitle.textContent = "ログイン";
+        formLogin.style.display = "block";
+        formRegister.style.display = "none";
+        formMypage.style.display = "none";
+      }
+    } else if (type === "register") {
+      if (currentUser) {
+        openAuthModal("login"); // ログイン中ならマイページへ
+        return;
+      }
+      modalTitle.textContent = "新規会員登録";
+      formLogin.style.display = "none";
+      formRegister.style.display = "block";
+      formMypage.style.display = "none";
+    }
+  }
+
+  // ヘッダー等のボタンイベント
+  document.addEventListener("click", e => {
+    if (e.target.id === "nav-login" || e.target.closest("#nav-login")) {
+      e.preventDefault();
+      openAuthModal("login");
+    }
+    if (e.target.id === "nav-register" || e.target.closest("#nav-register")) {
+      e.preventDefault();
+      openAuthModal("register");
+    }
+    // サイドバーの会員メニュー等への対応
+    if (e.target.textContent.includes("ログイン")) {
+      e.preventDefault();
+      openAuthModal("login");
+    }
+    if (e.target.textContent.includes("無料会員登録")) {
+      e.preventDefault();
+      openAuthModal("register");
+    }
+  });
+
+  // モーダル閉じる
+  const closeBtn = document.getElementById("btn-close-modal");
+  if (closeBtn) {
+    closeBtn.addEventListener("click", () => { modal.style.display = "none"; });
+  }
+
+  // 新規登録処理
+  const submitReg = document.getElementById("btn-submit-register");
+  if (submitReg) {
+    submitReg.addEventListener("click", () => {
+      const name = document.getElementById("reg-name").value.trim();
+      const userId = document.getElementById("reg-userid").value.trim();
+      const email = document.getElementById("reg-email").value.trim();
+      const password = document.getElementById("reg-password").value.trim();
+      const msg = document.getElementById("reg-msg");
+
+      if (!name || !userId || !email || !password) {
+        msg.textContent = "すべての項目を入力してください。";
+        return;
+      }
+
+      let users = JSON.parse(localStorage.getItem("hananet_users") || "[]");
+      if (users.some(u => u.userId === userId)) {
+        msg.textContent = "この会員IDはすでに使用されています。";
+        return;
+      }
+
+      const newUser = { name, userId, email, password };
+      users.push(newUser);
+      localStorage.setItem("hananet_users", JSON.stringify(users));
+      localStorage.setItem("hananet_current_user", JSON.stringify(newUser));
+
+      alert("会員登録が完了し、ログインしました！");
+      modal.style.display = "none";
+      updateAuthUI();
+    });
+  }
+
+  // ログイン処理
+  const submitLogin = document.getElementById("btn-submit-login");
+  if (submitLogin) {
+    submitLogin.addEventListener("click", () => {
+      const userId = document.getElementById("login-userid").value.trim();
+      const password = document.getElementById("login-password").value.trim();
+      const msg = document.getElementById("login-msg");
+
+      let users = JSON.parse(localStorage.getItem("hananet_users") || "[]");
+      const found = users.find(u => u.userId === userId && u.password === password);
+
+      if (found) {
+        localStorage.setItem("hananet_current_user", JSON.stringify(found));
+        alert("ログインしました！");
+        modal.style.display = "none";
+        updateAuthUI();
+      } else {
+        msg.textContent = "会員IDまたはパスワードが正しくありません。";
+      }
+    });
+  }
+
+  // ログアウト処理
+  const btnLogout = document.getElementById("btn-logout");
+  if (btnLogout) {
+    btnLogout.addEventListener("click", () => {
+      localStorage.removeItem("hananet_current_user");
+      alert("ログアウトしました。");
+      modal.style.display = "none";
+      updateAuthUI();
+    });
+  }
+});
