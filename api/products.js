@@ -1,9 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
-// --- ▼ ここに実際のSupabaseの情報を直接入力してください ▼ ---
-const supabaseUrl = 'https://bemeursptcubwjeziazw.supabase.co/rest/v1/'; 
-const supabaseKey = 'sb_publishable_wm_9iMXIIKN7JvHeGl7DTw_dkyv5ERx';
-// -----------------------------------------------------------
+const supabaseUrl = 'https://bemeursptcubwjeziazw.supabase.co';
+const supabaseKey = 'sb_publishable_wm_9iMXIIKN7jVHeGl7DTw_dkyv5...';
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -11,9 +9,9 @@ export default async function handler(req, res) {
   const method = req.method;
 
   try {
-    // 1. 商品一覧の取得 (GET)
+    // 1. データベースから商品一覧を取得 (GET)
     if (method === 'GET') {
-      const { data, error } = await supabase.from('products').select('*');
+      const { data, error } = await supabase.from('products').select('*').order('id', { ascending: true });
       if (error) throw error;
       return res.status(200).json(data || []);
     }
@@ -32,10 +30,10 @@ export default async function handler(req, res) {
 
       let result;
       if (id) {
-        // 更新
+        // 既存データの更新
         result = await supabase.from('products').update(payload).eq('id', id);
       } else {
-        // 新規追加
+        // 新規データの追加
         const newId = Date.now();
         result = await supabase.from('products').insert([{ id: newId, ...payload }]);
       }
