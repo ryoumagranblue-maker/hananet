@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>お問合せ・お見積り - Hananet</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <h1><a href="index.html">Hananet</a></h1>
+      <nav><a href="index.html">ホームへ戻る</a></nav>
+    </div>
+  </header>
+  <main class="container main-content" style="padding: 40px 20px;">
+    <h2 style="color: #765040; margin-bottom: 20px; border-bottom: 2px solid #d96b91; padding-bottom: 8px;">お問合せ・お見積り</h2>
+    <form style="background: #fff; padding: 20px; border: 1px solid #eadbd7; border-radius: 8px; display: flex; flex-direction: column; gap: 15px;" onsubmit="event.preventDefault(); alert('お問合せを送信しました（デモ）');">
+      <div>
+        <label style="display: block; margin-bottom: 5px; color: #765040; font-weight: bold;">お名前</label>
+        <input type="text" required style="width: 100%; padding: 10px; border: 1px solid #dfd1cb; border-radius: 6px;">
+      </div>
+      <div>
+        <label style="display: block; margin-bottom: 5px; color: #765040; font-weight: bold;">メールアドレス</label>
+        <input type="email" required style="width: 100%; padding: 10px; border: 1px solid #dfd1cb; border-radius: 6px;">
+      </div>
+      <div>
+        <label style="display: block; margin-bottom: 5px; color: #765040; font-weight: bold;">お問合せ内容・お見積り詳細</label>
+        <textarea rows="5" required style="width: 100%; padding: 10px; border: 1px solid #dfd1cb; border-radius: 6px;"></textarea>
+      </div>
+      <button type="submit" style="padding: 12px; background: #d96b91; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">送信する</button>
+    </form>
+  </main>
+  <footer class="site-footer" style="margin-top: 40px; padding: 20px; text-align: center; background: #f4f8ec; color: #765040; font-size: 12px;">
+    <p>&copy; Hananet All Rights Reserved.</p>
+  </footer>
+</body>
+</html>
