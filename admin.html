@@ -136,7 +136,10 @@ async function fetchAdminProducts() {
     const res = await fetch('/api/products');
     if (res.ok) {
       products = await res.json();
+      console.log("取得した商品データ:", products);
       renderAdminProducts();
+    } else {
+      console.error("APIエラーレスポンス:", res.status);
     }
   } catch (err) {
     console.error("データ取得エラー", err);
@@ -202,8 +205,8 @@ function renderAdminProducts() {
       <td>${p.category}</td>
       <td>¥${Number(p.price).toLocaleString()}</td>
       <td>
-        <button class="btn-sm" onclick="openProductModal(${p.id})">編集</button>
-        <button class="btn-sm btn-del" onclick="deleteProduct(${p.id})">削除</button>
+        <button class="btn-sm" onclick="openProductModal('${p.id}')">編集</button>
+        <button class="btn-sm btn-del" onclick="deleteProduct('${p.id}')">削除</button>
       </td>
     `;
     tbody.appendChild(tr);
@@ -216,14 +219,15 @@ function openProductModal(id = null) {
   document.getElementById('product-image-file').value = "";
   document.getElementById('image-preview-container').innerHTML = "";
 
-  if(id !== null) {
+  if(id !== null && id !== 'null' && id !== '') {
     document.getElementById('modal-title').textContent = '商品を編集';
-    const p = products.find(x => x.id === id);
+    // 型の違いによるズレを防ぐため文字列に変換して比較
+    const p = products.find(x => String(x.id) === String(id));
     if (p) {
       document.getElementById('edit-id').value = p.id;
-      document.getElementById('p-name').value = p.name;
-      document.getElementById('p-price').value = p.price;
-      document.getElementById('p-category').value = p.category;
+      document.getElementById('p-name').value = p.name || '';
+      document.getElementById('p-price').value = p.price || '';
+      document.getElementById('p-category').value = p.category || '';
       document.getElementById('p-desc').value = p.description || '';
       currentImageBase64 = p.image || "";
       if (currentImageBase64) {
@@ -258,7 +262,7 @@ async function saveProductData() {
 
   let existingImage = "";
   if(id) {
-    const existing = products.find(x => x.id === Number(id));
+    const existing = products.find(x => String(x.id) === String(id));
     if(existing) existingImage = existing.image;
   }
   const finalImage = currentImageBase64 || existingImage;
