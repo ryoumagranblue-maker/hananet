@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = 'https://bemeursptcubwjeziazw.supabase.co';
-const supabaseKey = 'sb_publishable_wm_9iMXIIKN7jVHeGl7DTw_dkyv5...';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJlbWV1cnNwdGN1YndqZXppYXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMxMDA2MDEsImV4cCI6MjEwODY3NjYwMX0.30spbk1qkFyfKIVPEdu4O-0FWH8Xq29651POqylfMmw';
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
